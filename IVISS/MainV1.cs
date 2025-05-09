@@ -114,8 +114,8 @@ namespace IVISS
 
 
         private Stopwatch stopwatch = new Stopwatch();
-        private int frameCounter = 0;
-        private const int MaxFramesPerSecond = 5; // Set the max frames per second
+        // private int frameCounter = 0;
+        // private const int MaxFramesPerSecond = 5; // Set the max frames per second
         private object lockObject = new object(); // Ensure thread safety
       
 
@@ -195,7 +195,8 @@ namespace IVISS
         frmVisitorSearch frm = null;
 
 
-
+        int frameCounter = 0;
+        int skipAlprFrames = 5;
 
         DataTable dtAdditionalALPR;
 
@@ -1596,8 +1597,16 @@ namespace IVISS
                     //{
                     if (Global.ENTRY_LOOP_SENSOR == false)
                     {
-
-                          anprThread.SetImage(new Bitmap(image)); // Process the frame
+                        if(frameCounter == skipAlprFrames)
+                        {
+                            anprThread.SetImage(new Bitmap(image)); // Process the frame
+                            frameCounter = 0;
+                        }
+                        else
+                        {
+                            frameCounter++;
+                        }
+                          
 
                         //----------------------Code for old camera ------------------------------
 

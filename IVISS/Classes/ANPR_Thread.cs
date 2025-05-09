@@ -130,7 +130,7 @@ namespace IVISS.Classes
                             {
                                 if (array.Length == 0 || _gxImage.LoadFromMem(array, 7))
                                 {
-                                    Thread.Sleep(100);
+                                    // Thread.Sleep(100);
                                     if (_gxImage != null && this.anpr.FindFirst(_gxImage))
                                     {
                                         ANPR_RESULT_STRUCT str = new ANPR_RESULT_STRUCT();
