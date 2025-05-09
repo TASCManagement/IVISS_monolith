@@ -15,6 +15,10 @@ namespace IVISS.Model
         public string RecordingPath { set; get; }
 
         public bool IsLicensePlate { set; get; }
+
+        public bool IsAdditionalALPR { set; get; }
+
+       
         public bool IsDate { set; get; }
         public bool IsTime { set; get; }
 
@@ -23,6 +27,9 @@ namespace IVISS.Model
 
         public DateTime ToTime { set; get; }
         public DateTime FromTime { set; get; }
+
+        public string Gate_Name { set; get; }
+        
 
         public IEnumerable<Object> GetData()
         {
@@ -44,15 +51,26 @@ namespace IVISS.Model
                                       visitor_license_fore_color = d.visitor_license_fore_color ?? string.Empty,
                                       visitor_license_type = d.visitor_license_type ?? string.Empty,
                                       visitor_license_accuracy = d.visitor_license_accuracy ?? 0,
-                                      visitor_access_gate = d.visitor_access_gate ?? string.Empty,
+                                      visitor_access_gate = d.gate_no ?? string.Empty,
                                       visitor_access_status = d.visitor_access_status ?? string.Empty,
                                       visitor_license_prefix = d.visitor_license_prefix ?? string.Empty,
                                       visitor_exit_gate = d.visitor_exit_gate ?? 0,
                                       visitor_exit_time = d.visitor_exit_time ?? defaultDate,
                                       visitor_exit_date = d.visitor_exit_date ?? defaultDate,
                                       d.visitor_entry_gate,
-                                      d.visitor_authorization
+                                      d.visitor_authorization,
+                                      IsPrimary=d.is_primary??-1
                                   };
+
+                if(Gate_Name!="")
+                {
+                    detailQuery = detailQuery.Where(p => p.visitor_access_gate == Gate_Name);
+                }
+
+                if (IsAdditionalALPR==false)
+                {
+                    detailQuery = detailQuery.Where(p => p.IsPrimary != 0);
+                }
 
                 if (IsLicensePlate)
                 {

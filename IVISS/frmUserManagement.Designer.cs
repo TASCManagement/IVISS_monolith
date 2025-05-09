@@ -490,7 +490,6 @@
             this.Controls.Add(this.panel20);
             this.Controls.Add(this.txtFirstName);
             this.Controls.Add(this.panel14);
-            this.Controls.Add(this.btnSave);
             this.Controls.Add(this.btnDelete);
             this.Controls.Add(this.btnReset);
             this.Controls.Add(this.rdoGuard);
@@ -502,6 +501,7 @@
             this.Controls.Add(this.rdoManager);
             this.Controls.Add(this.label34);
             this.Controls.Add(this.btnCancel);
+            this.Controls.Add(this.btnSave);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "frmUserManagement";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

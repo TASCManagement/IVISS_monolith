@@ -8,22 +8,27 @@ namespace IVISS.View
 {
     interface ISearchRecords
     {
-        bool isLicensePlate { set; get; }
-        bool isDate { set; get; }
-        bool isTime { set; get; }
+        bool isLicensePlateSearchRecords { set; get; }
+        bool isDateSearchRecords { set; get; }
+        bool isTimeSearchRecords { set; get; }
 
-        string lpNumEng { set; get; }
-        string lpNumArab { set; get; }
-        
-        DateTime fromTime { set; get; }
-        DateTime toTime { set; get; }
+        string lpNumEngSearchRecords { set; get; }
+        string lpNumArabSearchRecords { set; get; }
+        string recordingPathSearchRecords { set; get; }
 
-        DateTime fromDate { set; get; }
-        DateTime toDate { set; get; }
+        DateTime fromTimeSearchRecords { set; get; }
+        DateTime toTimeSearchRecords { set; get; }
 
-        void BindData(DataTable dt);
+        DateTime fromDateSearchRecords { set; get; }
+        DateTime toDateSearchRecords { set; get; }
 
-        event EventHandler BtnReset;
-        event EventHandler BtnSearch;
+
+        bool isAdditionalALPR { set; get; }
+
+        void BindDataSearchReords(DataTable dt);
+
+        event EventHandler BtnResetSearchRecords;
+        event EventHandler BtnSearchSearchRecords;
+        event EventHandler ChkSetDefault;
     }
 }

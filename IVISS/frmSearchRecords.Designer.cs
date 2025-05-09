@@ -28,30 +28,32 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle17 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle18 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle19 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle20 = new System.Windows.Forms.DataGridViewCellStyle();
+            this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmSearchRecords));
-            this.Path = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Accuracy = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label12 = new System.Windows.Forms.Label();
-            this.GateType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.txtLicensePlateArab = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.btnTime = new System.Windows.Forms.Button();
             this.btnDate = new System.Windows.Forms.Button();
             this.btnLicensePlate = new System.Windows.Forms.Button();
-            this.DateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dtpToDate = new System.Windows.Forms.DateTimePicker();
-            this.VisitorID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnClose = new System.Windows.Forms.Button();
             this.dgView = new System.Windows.Forms.DataGridView();
             this.GateName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.IsDefault = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.License = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Arabic = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.VisitorID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Path = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Accuracy = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.GateType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
@@ -66,41 +68,28 @@
             this.dtpFromDate = new System.Windows.Forms.DateTimePicker();
             this.dtpToTime = new System.Windows.Forms.DateTimePicker();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.btnUpdate = new System.Windows.Forms.Button();
+            this.btnStitch = new System.Windows.Forms.Button();
+            this.label13 = new System.Windows.Forms.Label();
+            this.lblDriver = new System.Windows.Forms.Label();
+            this.pBoxLP = new System.Windows.Forms.PictureBox();
+            this.pBoxDriver = new System.Windows.Forms.PictureBox();
+            this.chkSetDefault = new System.Windows.Forms.CheckBox();
             this.pBoxStitch = new System.Windows.Forms.PictureBox();
             this.panel13 = new System.Windows.Forms.Panel();
             this.btnSearch = new System.Windows.Forms.Button();
             this.btnReset = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.tmComposite = new System.Windows.Forms.Timer(this.components);
+            this.lblStatus = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgView)).BeginInit();
             this.panel3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pBoxLP)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pBoxDriver)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pBoxStitch)).BeginInit();
             this.panel13.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // Path
-            // 
-            this.Path.DataPropertyName = "Path";
-            this.Path.HeaderText = "Path";
-            this.Path.Name = "Path";
-            this.Path.ReadOnly = true;
-            this.Path.Visible = false;
-            // 
-            // Accuracy
-            // 
-            this.Accuracy.DataPropertyName = "Accuracy";
-            this.Accuracy.HeaderText = "Accuracy";
-            this.Accuracy.Name = "Accuracy";
-            this.Accuracy.ReadOnly = true;
-            this.Accuracy.Visible = false;
-            // 
-            // Status
-            // 
-            this.Status.DataPropertyName = "Status";
-            this.Status.HeaderText = "Status";
-            this.Status.Name = "Status";
-            this.Status.ReadOnly = true;
-            this.Status.Visible = false;
             // 
             // label12
             // 
@@ -113,26 +102,18 @@
             this.label12.TabIndex = 63;
             this.label12.Text = "SEARCH RECORDS";
             // 
-            // GateType
-            // 
-            this.GateType.DataPropertyName = "GateType";
-            this.GateType.HeaderText = "Gate";
-            this.GateType.Name = "GateType";
-            this.GateType.ReadOnly = true;
-            this.GateType.Visible = false;
-            // 
             // txtLicensePlateArab
             // 
             this.txtLicensePlateArab.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(104)))), ((int)(((byte)(116)))));
             this.txtLicensePlateArab.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtLicensePlateArab.Enabled = false;
             this.txtLicensePlateArab.Font = new System.Drawing.Font("Open Sans", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtLicensePlateArab.ForeColor = System.Drawing.Color.White;
-            this.txtLicensePlateArab.Location = new System.Drawing.Point(403, 117);
+            this.txtLicensePlateArab.Location = new System.Drawing.Point(405, 117);
             this.txtLicensePlateArab.Name = "txtLicensePlateArab";
             this.txtLicensePlateArab.Size = new System.Drawing.Size(179, 39);
             this.txtLicensePlateArab.TabIndex = 60;
             this.txtLicensePlateArab.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtLicensePlateArab.Click += new System.EventHandler(this.txtLicensePlateArab_Click);
             // 
             // label11
             // 
@@ -201,13 +182,6 @@
             this.btnLicensePlate.UseVisualStyleBackColor = true;
             this.btnLicensePlate.Click += new System.EventHandler(this.btnLicensePlate_Click);
             // 
-            // DateTime
-            // 
-            this.DateTime.DataPropertyName = "DateTime";
-            this.DateTime.HeaderText = "Date & Time";
-            this.DateTime.Name = "DateTime";
-            this.DateTime.ReadOnly = true;
-            // 
             // dtpToDate
             // 
             this.dtpToDate.CalendarFont = new System.Drawing.Font("Open Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -220,14 +194,6 @@
             this.dtpToDate.Size = new System.Drawing.Size(137, 32);
             this.dtpToDate.TabIndex = 42;
             // 
-            // VisitorID
-            // 
-            this.VisitorID.DataPropertyName = "VisitorID";
-            this.VisitorID.HeaderText = "VisitorID";
-            this.VisitorID.Name = "VisitorID";
-            this.VisitorID.ReadOnly = true;
-            this.VisitorID.Visible = false;
-            // 
             // btnClose
             // 
             this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -237,7 +203,7 @@
             this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClose.Font = new System.Drawing.Font("Open Sans", 16.30189F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnClose.ForeColor = System.Drawing.Color.White;
-            this.btnClose.Location = new System.Drawing.Point(1132, 0);
+            this.btnClose.Location = new System.Drawing.Point(1417, 0);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(42, 44);
             this.btnClose.TabIndex = 65;
@@ -252,22 +218,23 @@
             this.dgView.AllowUserToDeleteRows = false;
             this.dgView.AllowUserToResizeColumns = false;
             this.dgView.AllowUserToResizeRows = false;
-            dataGridViewCellStyle17.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(112)))), ((int)(((byte)(123)))), ((int)(((byte)(137)))));
-            this.dgView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle17;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(112)))), ((int)(((byte)(123)))), ((int)(((byte)(137)))));
+            this.dgView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgView.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(103)))), ((int)(((byte)(123)))));
             this.dgView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle18.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle18.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(104)))), ((int)(((byte)(116)))));
-            dataGridViewCellStyle18.Font = new System.Drawing.Font("Open Sans Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle18.ForeColor = System.Drawing.Color.White;
-            dataGridViewCellStyle18.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle18.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle18.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle18;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(104)))), ((int)(((byte)(116)))));
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Open Sans Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.White;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.dgView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.GateName,
+            this.IsDefault,
             this.License,
             this.Arabic,
             this.VisitorID,
@@ -276,14 +243,14 @@
             this.Accuracy,
             this.Status,
             this.GateType});
-            dataGridViewCellStyle19.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle19.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(81)))), ((int)(((byte)(93)))));
-            dataGridViewCellStyle19.Font = new System.Drawing.Font("Open Sans", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle19.ForeColor = System.Drawing.Color.White;
-            dataGridViewCellStyle19.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle19.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle19.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgView.DefaultCellStyle = dataGridViewCellStyle19;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(81)))), ((int)(((byte)(93)))));
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Open Sans", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.White;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgView.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dgView.EnableHeadersVisualStyles = false;
             this.dgView.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(103)))), ((int)(((byte)(123)))));
@@ -291,13 +258,13 @@
             this.dgView.Name = "dgView";
             this.dgView.ReadOnly = true;
             this.dgView.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            dataGridViewCellStyle20.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle20.Font = new System.Drawing.Font("Open Sans", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle20.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle20.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle20.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle20.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgView.RowHeadersDefaultCellStyle = dataGridViewCellStyle20;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Open Sans", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgView.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.dgView.RowHeadersVisible = false;
             this.dgView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgView.Size = new System.Drawing.Size(721, 427);
@@ -312,6 +279,14 @@
             this.GateName.Name = "GateName";
             this.GateName.ReadOnly = true;
             // 
+            // IsDefault
+            // 
+            this.IsDefault.DataPropertyName = "IsDefault";
+            this.IsDefault.HeaderText = "IsDefault";
+            this.IsDefault.Name = "IsDefault";
+            this.IsDefault.ReadOnly = true;
+            this.IsDefault.Visible = false;
+            // 
             // License
             // 
             this.License.DataPropertyName = "License";
@@ -325,6 +300,53 @@
             this.Arabic.HeaderText = "Arabic";
             this.Arabic.Name = "Arabic";
             this.Arabic.ReadOnly = true;
+            // 
+            // VisitorID
+            // 
+            this.VisitorID.DataPropertyName = "VisitorID";
+            this.VisitorID.HeaderText = "VisitorID";
+            this.VisitorID.Name = "VisitorID";
+            this.VisitorID.ReadOnly = true;
+            this.VisitorID.Visible = false;
+            // 
+            // Path
+            // 
+            this.Path.DataPropertyName = "Path";
+            this.Path.HeaderText = "Path";
+            this.Path.Name = "Path";
+            this.Path.ReadOnly = true;
+            this.Path.Visible = false;
+            // 
+            // DateTime
+            // 
+            this.DateTime.DataPropertyName = "DateTime";
+            this.DateTime.HeaderText = "Date & Time";
+            this.DateTime.Name = "DateTime";
+            this.DateTime.ReadOnly = true;
+            // 
+            // Accuracy
+            // 
+            this.Accuracy.DataPropertyName = "Accuracy";
+            this.Accuracy.HeaderText = "Accuracy";
+            this.Accuracy.Name = "Accuracy";
+            this.Accuracy.ReadOnly = true;
+            this.Accuracy.Visible = false;
+            // 
+            // Status
+            // 
+            this.Status.DataPropertyName = "Status";
+            this.Status.HeaderText = "Status";
+            this.Status.Name = "Status";
+            this.Status.ReadOnly = true;
+            this.Status.Visible = false;
+            // 
+            // GateType
+            // 
+            this.GateType.DataPropertyName = "GateType";
+            this.GateType.HeaderText = "Gate";
+            this.GateType.Name = "GateType";
+            this.GateType.ReadOnly = true;
+            this.GateType.Visible = false;
             // 
             // label9
             // 
@@ -429,10 +451,9 @@
             // 
             this.txtLicensePlate.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(104)))), ((int)(((byte)(116)))));
             this.txtLicensePlate.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtLicensePlate.Enabled = false;
             this.txtLicensePlate.Font = new System.Drawing.Font("Open Sans", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtLicensePlate.ForeColor = System.Drawing.Color.White;
-            this.txtLicensePlate.Location = new System.Drawing.Point(203, 118);
+            this.txtLicensePlate.Location = new System.Drawing.Point(205, 118);
             this.txtLicensePlate.Name = "txtLicensePlate";
             this.txtLicensePlate.Size = new System.Drawing.Size(181, 39);
             this.txtLicensePlate.TabIndex = 44;
@@ -473,13 +494,99 @@
             // panel3
             // 
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panel3.Controls.Add(this.lblStatus);
+            this.panel3.Controls.Add(this.btnUpdate);
+            this.panel3.Controls.Add(this.btnStitch);
+            this.panel3.Controls.Add(this.label13);
+            this.panel3.Controls.Add(this.lblDriver);
+            this.panel3.Controls.Add(this.pBoxLP);
+            this.panel3.Controls.Add(this.pBoxDriver);
+            this.panel3.Controls.Add(this.chkSetDefault);
             this.panel3.Controls.Add(this.pBoxStitch);
             this.panel3.Controls.Add(this.dgView);
             this.panel3.Controls.Add(this.btnClose);
             this.panel3.Location = new System.Drawing.Point(2, 1);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(1182, 765);
+            this.panel3.Size = new System.Drawing.Size(1467, 765);
             this.panel3.TabIndex = 66;
+            // 
+            // btnUpdate
+            // 
+            this.btnUpdate.Font = new System.Drawing.Font("Open Sans Semibold", 10.18868F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnUpdate.Location = new System.Drawing.Point(590, 111);
+            this.btnUpdate.Name = "btnUpdate";
+            this.btnUpdate.Size = new System.Drawing.Size(95, 44);
+            this.btnUpdate.TabIndex = 70;
+            this.btnUpdate.Text = "Update";
+            this.btnUpdate.UseVisualStyleBackColor = true;
+            this.btnUpdate.Visible = false;
+            this.btnUpdate.Click += new System.EventHandler(this.btnUpdate_Click);
+            // 
+            // btnStitch
+            // 
+            this.btnStitch.Font = new System.Drawing.Font("Open Sans Semibold", 10.18868F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnStitch.Location = new System.Drawing.Point(881, 316);
+            this.btnStitch.Name = "btnStitch";
+            this.btnStitch.Size = new System.Drawing.Size(150, 47);
+            this.btnStitch.TabIndex = 69;
+            this.btnStitch.Text = "Run Stitch";
+            this.btnStitch.UseVisualStyleBackColor = true;
+            this.btnStitch.Click += new System.EventHandler(this.btnStitch_Click);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Open Sans Semibold", 12.22642F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.ForeColor = System.Drawing.Color.White;
+            this.label13.Location = new System.Drawing.Point(1219, 379);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(149, 26);
+            this.label13.TabIndex = 68;
+            this.label13.Text = "LICENSE PLATE";
+            // 
+            // lblDriver
+            // 
+            this.lblDriver.AutoSize = true;
+            this.lblDriver.Font = new System.Drawing.Font("Open Sans Semibold", 12.22642F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDriver.ForeColor = System.Drawing.Color.White;
+            this.lblDriver.Location = new System.Drawing.Point(1252, 7);
+            this.lblDriver.Name = "lblDriver";
+            this.lblDriver.Size = new System.Drawing.Size(79, 26);
+            this.lblDriver.TabIndex = 67;
+            this.lblDriver.Text = "DRIVER";
+            // 
+            // pBoxLP
+            // 
+            this.pBoxLP.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pBoxLP.Location = new System.Drawing.Point(1132, 425);
+            this.pBoxLP.Name = "pBoxLP";
+            this.pBoxLP.Size = new System.Drawing.Size(315, 300);
+            this.pBoxLP.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pBoxLP.TabIndex = 66;
+            this.pBoxLP.TabStop = false;
+            // 
+            // pBoxDriver
+            // 
+            this.pBoxDriver.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pBoxDriver.Location = new System.Drawing.Point(1132, 46);
+            this.pBoxDriver.Name = "pBoxDriver";
+            this.pBoxDriver.Size = new System.Drawing.Size(315, 300);
+            this.pBoxDriver.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pBoxDriver.TabIndex = 66;
+            this.pBoxDriver.TabStop = false;
+            // 
+            // chkSetDefault
+            // 
+            this.chkSetDefault.Font = new System.Drawing.Font("Open Sans", 10.18868F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkSetDefault.ForeColor = System.Drawing.Color.White;
+            this.chkSetDefault.Location = new System.Drawing.Point(988, 726);
+            this.chkSetDefault.Name = "chkSetDefault";
+            this.chkSetDefault.Size = new System.Drawing.Size(134, 26);
+            this.chkSetDefault.TabIndex = 23;
+            this.chkSetDefault.Text = "Set As Default";
+            this.chkSetDefault.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.chkSetDefault.UseVisualStyleBackColor = true;
+            this.chkSetDefault.CheckedChanged += new System.EventHandler(this.chkSetDefault_CheckedChanged);
             // 
             // pBoxStitch
             // 
@@ -488,7 +595,7 @@
             this.pBoxStitch.InitialImage = null;
             this.pBoxStitch.Location = new System.Drawing.Point(783, 13);
             this.pBoxStitch.Name = "pBoxStitch";
-            this.pBoxStitch.Size = new System.Drawing.Size(332, 730);
+            this.pBoxStitch.Size = new System.Drawing.Size(332, 712);
             this.pBoxStitch.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pBoxStitch.TabIndex = 0;
             this.pBoxStitch.TabStop = false;
@@ -503,7 +610,7 @@
             this.panel13.Controls.Add(this.btnReset);
             this.panel13.Location = new System.Drawing.Point(-1, 766);
             this.panel13.Name = "panel13";
-            this.panel13.Size = new System.Drawing.Size(1188, 99);
+            this.panel13.Size = new System.Drawing.Size(1473, 99);
             this.panel13.TabIndex = 64;
             // 
             // btnSearch
@@ -550,9 +657,9 @@
             // 
             this.panel2.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("panel2.BackgroundImage")));
             this.panel2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.panel2.Location = new System.Drawing.Point(396, 115);
+            this.panel2.Location = new System.Drawing.Point(399, 115);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(192, 43);
+            this.panel2.Size = new System.Drawing.Size(189, 43);
             this.panel2.TabIndex = 62;
             // 
             // panel1
@@ -564,16 +671,32 @@
             this.panel1.Size = new System.Drawing.Size(192, 43);
             this.panel1.TabIndex = 61;
             // 
+            // tmComposite
+            // 
+            this.tmComposite.Tick += new System.EventHandler(this.tmComposite_Tick);
+            // 
+            // lblStatus
+            // 
+            this.lblStatus.AutoSize = true;
+            this.lblStatus.Font = new System.Drawing.Font("Open Sans Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblStatus.ForeColor = System.Drawing.Color.White;
+            this.lblStatus.Location = new System.Drawing.Point(779, 728);
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Size = new System.Drawing.Size(21, 20);
+            this.lblStatus.TabIndex = 71;
+            this.lblStatus.Text = "...";
+            // 
             // frmSearchRecords
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(104)))), ((int)(((byte)(116)))));
-            this.ClientSize = new System.Drawing.Size(1186, 864);
+            this.ClientSize = new System.Drawing.Size(1471, 864);
+            this.Controls.Add(this.txtLicensePlateArab);
+            this.Controls.Add(this.txtLicensePlate);
             this.Controls.Add(this.panel13);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.panel2);
-            this.Controls.Add(this.txtLicensePlateArab);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.btnTime);
@@ -590,7 +713,6 @@
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.txtLicensePlate);
             this.Controls.Add(this.dtpFromTime);
             this.Controls.Add(this.dtpFromDate);
             this.Controls.Add(this.dtpToTime);
@@ -599,9 +721,12 @@
             this.Name = "frmSearchRecords";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "frmSearchRecords";
+            this.Load += new System.EventHandler(this.frmSearchRecords_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgView)).EndInit();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pBoxLP)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pBoxDriver)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pBoxStitch)).EndInit();
             this.panel13.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -610,16 +735,11 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.DataGridViewTextBoxColumn Path;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Accuracy;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Status;
         private System.Windows.Forms.Panel panel13;
         private System.Windows.Forms.Button btnSearch;
         private System.Windows.Forms.Button btnReset;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn GateType;
         private System.Windows.Forms.TextBox txtLicensePlateArab;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label10;
@@ -627,14 +747,9 @@
         private System.Windows.Forms.Button btnDate;
         private System.Windows.Forms.Button btnLicensePlate;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn DateTime;
         private System.Windows.Forms.DateTimePicker dtpToDate;
-        private System.Windows.Forms.DataGridViewTextBoxColumn VisitorID;
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.DataGridView dgView;
-        private System.Windows.Forms.DataGridViewTextBoxColumn GateName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn License;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Arabic;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
@@ -650,5 +765,24 @@
         private System.Windows.Forms.DateTimePicker dtpToTime;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.PictureBox pBoxStitch;
+        private System.Windows.Forms.CheckBox chkSetDefault;
+        private System.Windows.Forms.DataGridViewTextBoxColumn GateName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn IsDefault;
+        private System.Windows.Forms.DataGridViewTextBoxColumn License;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Arabic;
+        private System.Windows.Forms.DataGridViewTextBoxColumn VisitorID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Path;
+        private System.Windows.Forms.DataGridViewTextBoxColumn DateTime;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Accuracy;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Status;
+        private System.Windows.Forms.DataGridViewTextBoxColumn GateType;
+        private System.Windows.Forms.PictureBox pBoxLP;
+        private System.Windows.Forms.PictureBox pBoxDriver;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label lblDriver;
+        private System.Windows.Forms.Button btnStitch;
+        private System.Windows.Forms.Timer tmComposite;
+        private System.Windows.Forms.Button btnUpdate;
+        private System.Windows.Forms.Label lblStatus;
     }
 }

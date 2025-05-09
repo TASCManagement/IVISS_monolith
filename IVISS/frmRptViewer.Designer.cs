@@ -28,29 +28,26 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.crystalReportViewer1 = new CrystalDecisions.Windows.Forms.CrystalReportViewer();
-            this.CrystalReport11 = new IVISS.CrystalReport1();
-            this.rptListing1 = new IVISS.rptListing();
+            this.crViewer = new CrystalDecisions.Windows.Forms.CrystalReportViewer();
             this.SuspendLayout();
             // 
-            // crystalReportViewer1
+            // crViewer
             // 
-            this.crystalReportViewer1.ActiveViewIndex = 0;
-            this.crystalReportViewer1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.crystalReportViewer1.Cursor = System.Windows.Forms.Cursors.Default;
-            this.crystalReportViewer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.crystalReportViewer1.Location = new System.Drawing.Point(0, 0);
-            this.crystalReportViewer1.Name = "crystalReportViewer1";
-            this.crystalReportViewer1.ReportSource = this.rptListing1;
-            this.crystalReportViewer1.Size = new System.Drawing.Size(1103, 712);
-            this.crystalReportViewer1.TabIndex = 0;
+            this.crViewer.ActiveViewIndex = -1;
+            this.crViewer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.crViewer.Cursor = System.Windows.Forms.Cursors.Default;
+            this.crViewer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.crViewer.Location = new System.Drawing.Point(0, 0);
+            this.crViewer.Name = "crViewer";
+            this.crViewer.Size = new System.Drawing.Size(1103, 712);
+            this.crViewer.TabIndex = 0;
             // 
             // frmRptViewer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1103, 712);
-            this.Controls.Add(this.crystalReportViewer1);
+            this.Controls.Add(this.crViewer);
             this.Name = "frmRptViewer";
             this.Text = "frmRptViewer";
             this.ResumeLayout(false);
@@ -59,8 +56,6 @@
 
         #endregion
 
-        private CrystalDecisions.Windows.Forms.CrystalReportViewer crystalReportViewer1;
-        private CrystalReport1 CrystalReport11;
-        private rptListing rptListing1;
+        private CrystalDecisions.Windows.Forms.CrystalReportViewer crViewer;
     }
 }

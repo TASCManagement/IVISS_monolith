@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using IVISS.View;
 using IVISS.Model;
 using IVISS.Utility;
+using System.Windows.Forms;
 
 namespace IVISS.Presenter
 {
@@ -26,15 +27,22 @@ namespace IVISS.Presenter
 
             view.RdoManager += View_RdoManager;
             view.RdoGuard += View_RdoGuard;
-            view.FormLoad += View_FormLoad;
+            view.FormLoadUser += View_FormLoad;
 
-            this.FillGuards();
+          //  this.FillGuards();
         }
 
         private void View_FormLoad(object sender, EventArgs e)
         {
+
+
             //Task t1 = Task.Run(() => this.FillGuards());
-            this.FillGuards();
+
+            if (view.userManagemenAlreadyLoaded == false)
+            {
+                this.FillGuards();
+                view.userManagemenAlreadyLoaded = true;
+            }
         }
 
         private void View_RdoGuard(object sender, EventArgs e)
@@ -44,11 +52,13 @@ namespace IVISS.Presenter
 
         private void FillGuards()
         {
+            view.ResetUser();
             view.SetGridSource(model.FillGuards());
         }
 
         private void View_RdoManager(object sender, EventArgs e)
         {
+            view.ResetUser();
             FillManagers();
         }
 
@@ -69,7 +79,16 @@ namespace IVISS.Presenter
                 {
                     try
                     {
+
+                        if(view.id == Global.USER_NAME)
+                        {
+                            MetroFramework.MetroMessageBox.Show(view.userManagementForm, "You do not have the permission to delete this user.", Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                            return;
+                        }
                         model.id = view.id;
+
+
 
                         if (view.guardChecked)
                         {
@@ -82,22 +101,30 @@ namespace IVISS.Presenter
                             Task t = Task.Run(() => FillManagers());
                         }
 
-                        view.Reset();
-                        Global.ShowMessage("User deleted Successfully");
+                        
+
+                        MetroFramework.MetroMessageBox.Show(view.userManagementForm, "User deleted Successfully", Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        view.ResetUser();
+                        //Global.ShowMessage("User deleted Successfully");
                     }
                     catch (Exception ex)
                     {
-                        Global.ShowMessage(ex.ToString());
+                        MetroFramework.MetroMessageBox.Show(view.userManagementForm, ex.ToString(), Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
         }
 
+      
+
         private bool CheckForDeletion()
         {
             if (view.id.Length == 0)
             {
-                Global.ShowMessage("Please select a user to delete");
+                MetroFramework.MetroMessageBox.Show(view.userManagementForm, "Please select a user to delete", Global.COMPANY_NAME,  MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+               // Global.ShowMessage("Please select a user to delete");
                 return false;
 
             }
@@ -121,9 +148,27 @@ namespace IVISS.Presenter
                 model.password = view.password;
                 model.selectedID = view.selectedID;
 
+                if (model.RecordExists(view.id,view.selectedID))
+                {
+                    MetroFramework.MetroMessageBox.Show(view.userManagementForm, "Cannot create users with existing ID", Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // Global.ShowMessage("Cannot create users with existing ID");
+                    //this.txtID.Focus();
+
+                    return ;
+                }
+
+                if (model.RecordExistsAdmin(view.id, view.selectedID))
+                {
+                    MetroFramework.MetroMessageBox.Show(view.userManagementForm, "Cannot create users with existing ID", Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // Global.ShowMessage("Cannot create users with existing ID");
+                    //this.txtID.Focus();
+
+                    return;
+                }
+
                 if (view.guardChecked)
                 {
-                    if (view.saveBtnCaption == "SAVE")
+                    if (view.saveBtnCaption.ToUpper() == "SAVE")
                     {                        
                         model.InsertGuard();
                     }
@@ -132,11 +177,13 @@ namespace IVISS.Presenter
                         model.UpdateGuard();   
                     }
 
-                    Task t = Task.Run(() => FillGuards());
+                    FillGuards();
+
+                    //Task t = Task.Run(() => FillGuards());
                 }
                 else
                 {
-                    if (view.saveBtnCaption == "SAVE")
+                    if (view.saveBtnCaption.ToUpper() == "SAVE")
                     {
                         model.InsertManager();
                     }
@@ -145,16 +192,19 @@ namespace IVISS.Presenter
                         model.UpdateManager();
                     }
 
-                    Task t = Task.Run(() => FillManagers());
-                }
+                    FillManagers();
 
-                Global.ShowMessageDialog("User saved successfully");
-                view.Reset();
+                  //  Task t = Task.Run(() => FillManagers());
+                }
+                MetroFramework.MetroMessageBox.Show(view.userManagementForm, "User saved successfully", Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                
+                view.ResetUser();
+                return;
                 
             }
             catch (Exception ex)
             {
-                Global.ShowMessage(ex.ToString());
+                MetroFramework.MetroMessageBox.Show(view.userManagementForm, ex.ToString(), Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -167,9 +217,15 @@ namespace IVISS.Presenter
         {
             bool recordExists = false;
 
+
+           
+
             if (view.id.Length == 0)
             {
-                Global.ShowMessage("ID cannot be left blanked");
+
+                MetroFramework.MetroMessageBox.Show(view.userManagementForm, "ID cannot be left blanked", Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+               // Global.ShowMessage("ID cannot be left blanked");
                 //this.txtID.Focus();
 
                 return false;
@@ -177,7 +233,10 @@ namespace IVISS.Presenter
 
             if (view.password.Length == 0)
             {
-                Global.ShowMessage("Password cannot be left blanked");
+
+                MetroFramework.MetroMessageBox.Show(view.userManagementForm, "Password cannot be left blanked", Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                //Global.ShowMessage("Password cannot be left blanked");
                 //this.txtPassword.Focus();
 
                 return false;
@@ -185,7 +244,8 @@ namespace IVISS.Presenter
 
             if (recordExists)
             {
-                Global.ShowMessage("Cannot create users with existing ID");
+                MetroFramework.MetroMessageBox.Show(view.userManagementForm, "Cannot create users with existing ID", Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
+               // Global.ShowMessage("Cannot create users with existing ID");
                 //this.txtID.Focus();
 
                 return false;

@@ -13,7 +13,15 @@ using SpinnakerNET.Video;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using System.Drawing;
 //using System.Drawing;
+
+using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
+using System.Drawing.Imaging;
+using IVISS.Utility;
+using IVISS.Classes;
 
 namespace IVISS
 {
@@ -38,7 +46,7 @@ namespace IVISS
 
         float recording_frame_rate = 610.0f;
 
-        float recording_duration = 10.0f;        // Record for 5.0 seconds
+        float recording_duration = 3.0f;        // Record for 5.0 seconds
 
         float video_frame_rate = 30.0f;         // Frame rate for saving video
 
@@ -50,7 +58,8 @@ namespace IVISS
 
         float gamma = 0.5f; ///////////////////////////////////////////////////////////////////////////////////////////////////// Fix gamma too! /////////////////////////////////////////////////////////////
 
-        String recordingPath = "C:\\affraz_IVISS_3\\new\\";      // Choosing a new path
+        //String recordingPath = "C:\\affraz_IVISS_3\\new\\";      // Choosing a new path
+        String recordingPath = "C:\\IVISSTemp\\";      // Choosing a new path
 
         /*
         long image_width = 2048;
@@ -81,8 +90,10 @@ namespace IVISS
         List<IManagedCamera> camList;
 
         IManagedCamera theCamera;
-        
-        BlockingCollection<IManagedImage> images = new BlockingCollection<IManagedImage>();
+
+        //BlockingCollection<IManagedImage> images = new BlockingCollection<IManagedImage>();
+        BlockingCollection<IManagedImage> images;
+        bool first_image_taken;
 
         Object lock_obj = new Object();
 
@@ -92,12 +103,23 @@ namespace IVISS
 
         // If the recording should be saved in the same folder with different video names
         // .. or diffferent folders with differents folders names
-        bool seperate_folder = false;       
+        bool seperate_folder = false;
+
+       public  bool isAutomaticMode = false;
+
+        public delegate void MyDelegate(string msg);
+        public event MyDelegate eventCallbackRecordingStart;
+        public event MyDelegate eventCallbackRecordingEnd;
+
+        String cameraSerial = "";
+
+        Stitch_Generator stitch_generator = null;
+        public Bitmap stitched_image = null;
 
         // The constructor
         public Camera_Recorder()
         {
-            
+            this.cameraSerial = Global.LicenseNo;
         }
 
         /**
@@ -144,13 +166,36 @@ namespace IVISS
                 return -1;
             }
 
-            this.theCamera = camList[0];
+            //this.theCamera = camList[0];
+
+
+            bool cameraFound = false;
+
+            foreach (IManagedCamera managedCamera in camList)
+            {
+                IString iDeviceSerialNumber = managedCamera.GetTLDeviceNodeMap().GetNode<IString>("DeviceSerialNumber");
+
+                Console.WriteLine(iDeviceSerialNumber.Value);
+
+                if (iDeviceSerialNumber.Value == this.cameraSerial)
+                {
+                    this.theCamera = managedCamera;
+                    cameraFound = true;
+
+                    break;
+                }
+            }
 
             // Clear camera list before releasing system
             camList.Clear();
 
             // Release system
             system.Dispose();
+
+            if (!cameraFound)
+            {
+                Console.WriteLine("Camera not found, with Serial Number: {0}", this.cameraSerial);
+            }
 
             return 1;
         }
@@ -167,11 +212,52 @@ namespace IVISS
 
             try
             {
-                // Initialize camera
-                this.theCamera.Init();
+                if (this.theCamera != null)
+                {
+                    // Initialize camera
+                    this.theCamera.Init();
 
-                // Initialize cameras settings
-                InitializeSettings();
+                    recording_frame_rate = (float)theCamera.AcquisitionFrameRate.Value;
+                    Console.WriteLine("Acquisition Frame rate: {0}", recording_frame_rate);
+
+                    // Initialize cameras settings
+                    //? InitializeSettings();
+                    LoadUserSet1();     //! For manual recording
+                }
+                else
+                {
+                    Global.ShowMessage("Please enter valid serial number for camera", false);
+                    return -1;
+                }
+            }
+            catch (SpinnakerException ex)
+            {
+                Console.WriteLine("Error: {0}", ex.Message);
+                ShowLineNumber("");
+                result = -1;
+            }
+
+            // Setting "BufferCountManual" to 1000
+            try
+            {
+                IManagedCamera cam = this.theCamera;
+
+                // Retrieve GenICam nodemap
+                INodeMap nodeMap = theCamera.GetNodeMap();
+
+                // Todo 3: Set this to a fixed value after researching optimal value
+                // This is set automatically in newer versions
+                // Setting up number of image buffers
+                INodeMap sNodeMap = cam.GetTLStreamNodeMap();
+
+                var streamNode = sNodeMap.GetNode<Enumeration>("StreamBufferCountMode");
+                streamNode.Value = 0;   // Value of '0' means "Manual Buffer size Mode"
+
+                var streamNode_2 = sNodeMap.GetNode<Integer>("StreamBufferCountManual");
+                streamNode_2.Value = 1000;
+
+                /// //////////////////////////////////////////////////////////
+
             }
             catch (SpinnakerException ex)
             {
@@ -194,6 +280,126 @@ namespace IVISS
             return result;
         }
 
+        //! Load all of these settings from the 'UserSet', instead of manually setting each one individually
+        public int LoadUserSet0()
+        {
+            //? User_Set_0 is for automatic recording
+
+            
+            isAutomaticMode = true;
+
+            int result = 0;
+
+            try
+            {
+                IManagedCamera cam = this.theCamera;
+
+                //cam.UserSetFeatureEnable.Value = true;
+                cam.UserSetSelector.Value = UserSetSelectorEnums.UserSet0.ToString();
+                cam.UserSetLoad.Execute();
+            }
+            catch (SpinnakerException ex)
+            {
+                Console.WriteLine("Error: {0}", ex.Message);
+                ShowLineNumber("");
+                result = -1;
+            }
+
+            return result;
+        }
+
+        public int LoadUserSet1()
+        {
+            //? User_Set_1 is for manual recording
+
+            isAutomaticMode = false;
+            StopReceivingFrames();
+
+            int result = 0;
+
+            try
+            {
+                IManagedCamera cam = this.theCamera;
+
+                //cam.UserSetFeatureEnable.Value = true;
+                cam.UserSetSelector.Value = UserSetSelectorEnums.UserSet1.ToString();
+                cam.UserSetLoad.Execute();
+            }
+            catch (SpinnakerException ex)
+            {
+                Console.WriteLine("Error: {0}", ex.Message);
+                ShowLineNumber("");
+                result = -1;
+            }
+
+            return result;
+        }
+
+        // Gets line status (if it's high or low)
+        public int GetLine1Status(bool status)
+        {
+            int result = -1;
+            status = false;
+
+            try
+            {
+                IManagedCamera cam = this.theCamera;
+
+                cam.LineSelector.Value = LineSelectorEnums.Line1.ToString();
+                status = cam.LineStatus;
+            }
+            catch (SpinnakerException ex)
+            {
+                Console.WriteLine("Error: {0}", ex.Message);
+                ShowLineNumber("");
+                result = -1;
+            }
+
+            return result;
+        }
+
+        public int InvertLine0ToFalse()
+        {
+            int result = 0;
+
+            try
+            {
+                IManagedCamera cam = this.theCamera;
+
+                cam.LineSelector.Value = LineSelectorEnums.Line0.ToString();
+                cam.LineInverter.Value = false;
+            }
+            catch (SpinnakerException ex)
+            {
+                Console.WriteLine("Error: {0}", ex.Message);
+                ShowLineNumber("");
+                result = -1;
+            }
+
+            return result;
+        }
+
+        public int InvertLine0ToTrue()
+        {
+            int result = 0;
+
+            try
+            {
+                IManagedCamera cam = this.theCamera;
+
+                cam.LineSelector.Value = LineSelectorEnums.Line0.ToString();
+                cam.LineInverter.Value = true;
+            }
+            catch (SpinnakerException ex)
+            {
+                Console.WriteLine("Error: {0}", ex.Message);
+                ShowLineNumber("");
+                result = -1;
+            }
+
+            return result;
+        }
+
         //! Done
         public int InitializeSettings()
         {
@@ -203,8 +409,6 @@ namespace IVISS
             /// //////////////////////////////////////////////////////////
 
             int result = 0;
-
-            // Todo 9: Load all of these settings from the 'UserSet', instead of manually setting each one individually
 
             try
             {
@@ -331,14 +535,13 @@ namespace IVISS
                 Console.WriteLine("Frame rate set to: " + cam.AcquisitionFrameRate.Value);
 
                 // Todo 3: Set this to a fixed value after researching optimal value
-                /*  
-                 * // This is set automatically in newer versions
+                // This is set automatically in newer versions
                 // Setting up number of image buffers
                 INodeMap sNodeMap = cam.GetTLStreamNodeMap();
                 IInteger streamNode = sNodeMap.GetNode<IInteger>("StreamDefaultBufferCount");
                 long bufferCount = streamNode.Value;
-                streamNode.Value = 200;
-                */
+                streamNode.Value = 200000;
+
 
                 /// //////////////////////////////////////////////////////////
 
@@ -364,25 +567,41 @@ namespace IVISS
             return result;
         }
 
+        object isRecording = new object();
+
+        private static Semaphore _pool = new Semaphore(1, 1);
+
         public int StartReceivingFrames_2()
         {
-            Task startFrames = new Task(() => StartReceivingFrames(1.0f));
-            startFrames.Start();
+            if (_pool.WaitOne(100))
+            {
+                Console.WriteLine("\t ==%%== Taken from semaphore pool ==%%==");
+
+                Task startFrames = new Task(() => StartReceivingFrames(0.0f));
+                startFrames.Start();
+            }
+            else
+            {
+                Console.WriteLine("\t ==%%== Error taking from semaphore pool ==%%==");
+
+                return -1;
+            }
 
             return 1;
         }
 
         public int StartReceivingFrames(float recording_duration)
         {
-            Task.Factory.StartNew(() => {
-                SaveListToVideo();
-            });
+            first_image_taken = false;
 
             IManagedCamera cam = this.theCamera;
 
             int result = 0;
 
-            this.recording_duration = recording_duration;
+            if (recording_duration > 0.1)
+            {
+                this.recording_duration = recording_duration;
+            }
 
             try
             {
@@ -394,13 +613,28 @@ namespace IVISS
                 // Retrieve and convert images
                 //const int NumImages = 12000;
 
-                int NumImages = (int)(recording_duration * recording_frame_rate);
+                int NumImages = (int)(this.recording_duration * recording_frame_rate);
 
                 int imageCnt = 0;
 
+                images = new BlockingCollection<IManagedImage>();
+
+                // If 'GetNextImage()' times out and throws an exception
+                // This is usefull when frames transmission ends in automatic mode
+                bool timedOut = false;
+
                 // Take images untill queue is empty
-                while (!images.IsAddingCompleted)     
+                while (!images.IsAddingCompleted)
                 {
+                    if (timedOut && first_image_taken)
+                    {
+                        StopReceivingFrames();
+                        timedOut = false;
+                        break;
+                    }
+
+                    timedOut = false;
+
                     lock (lock_obj)
                     {
                         // 'try' this, in case there's an exception when using 'cam.GetNextImage()'
@@ -408,8 +642,30 @@ namespace IVISS
                         try
                         {
                             // Retrieve the next received images
-                            using (IManagedImage rawImage = cam.GetNextImage())
+                            using (IManagedImage rawImage = cam.GetNextImage(100))
                             {
+                                if (!first_image_taken)
+                                {
+                                    first_image_taken = true;
+
+                                    // Todo 11: Start this later, when we've recieved suffcient number of frames
+                                    Task.Factory.StartNew(() =>
+                                    {
+                                        SaveListToVideo();
+                                    });
+
+                                    // Call the callback function to signal start of recording
+                                    if (eventCallbackRecordingStart != null)
+                                        eventCallbackRecordingStart("----------------- Zeeshan bhai -----------------------> ");
+                                }
+                                
+                                if (imageCnt == NumImages && !isAutomaticMode)
+                                {
+                                    StopReceivingFrames();
+                                    timedOut = false;
+                                    break;
+                                }
+
                                 if (imageCnt % 300 == 0 || imageCnt == NumImages - 1)
                                     Console.WriteLine("Image count: {0}", imageCnt);
 
@@ -463,13 +719,25 @@ namespace IVISS
                             Console.WriteLine(e.Message);
                             Console.WriteLine("Exceptional exception!");
                             ShowLineNumber("");
+                            StopReceivingFrames();
                             break;
                         }
                         catch (SpinnakerException ex)
                         {
+
+
+                            if (ex.ErrorCode == Error.SPINNAKER_ERR_TIMEOUT)
+                            {
+                                Thread.Sleep(1);
+                                timedOut = true;
+
+                                continue;
+                            }
+
                             Console.WriteLine("Error: {0}", ex.Message);
                             Console.WriteLine("Error_2: {0}", ex.ErrorCode);
                             ShowLineNumber("");
+
                             result = -1;
                             break;
                         }
@@ -477,7 +745,7 @@ namespace IVISS
                 }
 
                 Console.WriteLine("Total frames recieved: {0}", imageCnt);
-                Console.WriteLine("Recording duration: {0}", imageCnt/recording_frame_rate);
+                Console.WriteLine("Recording duration: {0}", imageCnt / recording_frame_rate);
             }
             catch (SpinnakerException ex)
             {
@@ -494,10 +762,22 @@ namespace IVISS
 
         public int StopReceivingFrames()
         {
+            Thread.Sleep(250);
+
             int err = 1;
 
-            // Done adding images to the queue
-            images.CompleteAdding();
+            try
+            {
+                // Done adding images to the queue
+                if (images != null)
+                    images.CompleteAdding();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                ShowLineNumber("");
+                Console.WriteLine(e.StackTrace);
+            }
 
             // Try to disconnect until it's done successfully
             while (true)
@@ -507,14 +787,18 @@ namespace IVISS
                     try
                     {
                         //if (this.theCamera.IsStreaming())
+                        //if (this.theCamera.IsInitialized())
                         {
                             this.theCamera.EndAcquisition();   // This line stops receiving images from the camera. But the camera isn't disconnected yet
+                          
                             //Thread.Sleep(1000);
                         }
                         break;
                     }
                     catch (SpinnakerException ex)
                     {
+                      
+
                         if (this.theCamera.IsValid())
                         { }
 
@@ -523,6 +807,14 @@ namespace IVISS
                         Console.WriteLine("Error: {0}", ex.Message);
                         ShowLineNumber("\'EndAcquisition() exception\'");
                         err = -1;
+
+                        if (ex.ErrorCode == Error.SPINNAKER_ERR_NOT_INITIALIZED)
+                        {
+                            return 0;   //? Becasue there's a .WaitOne() later (just a hack)
+                            //break;
+                        }
+
+                        // Todo 13: Check if this loop should break on exception, or try to EndAcquisition indefinitely?
                     }
                     finally
                     {
@@ -531,12 +823,34 @@ namespace IVISS
                 }
             }
 
-            // Waits for signal from 'waitHandle.WaitOne();'
-            // .. to get the signal for the completion of video conversion
-            autoResetEvent.WaitOne();
+            Console.WriteLine("----------------------->  Before \'autoResetEvent.WaitOne()\'");
+
+            // Wait only if the first image is recieved and the 'SaveToVideo' function has been called
+            if (first_image_taken)
+            {
+                // Waits for signal from 'waitHandle.WaitOne();'
+                // .. to get the signal for the completion of video conversion
+                autoResetEvent.WaitOne();
+            }
+
+            try
+            {
+                _pool.Release(1);
+                Console.WriteLine("\t ==%%== Released from semaphore pool ==%%==");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: {0}", ex.Message);
+                Console.WriteLine("\t ==%%== _pool released without taking ==%%==");
+            }
 
             Console.WriteLine("End of \'StopReceivingFrames\'");
 
+            if (isAutomaticMode)
+            {
+                
+                StartReceivingFrames_2();
+            }
             return err;
         }
 
@@ -551,8 +865,11 @@ namespace IVISS
 
             try
             {
-                // Deinitialize camera
-                theCamera.DeInit();
+                if (theCamera != null)
+                {
+                    // Deinitialize camera
+                    theCamera.DeInit();
+                }
             }
             catch (SpinnakerException ex)
             {
@@ -579,10 +896,16 @@ namespace IVISS
         // This function prepares, saves, and cleans up an video from a list of images.
         public int SaveListToVideo()
         {
+           
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
             /// //////////////////////////////////////////////////////////
+
+            stitch_generator = new Stitch_Generator();
+            stitch_generator.ProcessStream();
+
+            stitched_image = null;
 
             int result = 0;
 
@@ -602,8 +925,8 @@ namespace IVISS
                 //string videoFilename = "SaveToAvi-CSharp-H264";
                 //string videoFilename = directoryPath;
 
-                String directoryPath = @"C:\IVISSTemp\";
-                string videoFilename = directoryPath + "rec";
+                String directoryPath = "something";
+                string videoFilename = directoryPath;
 
                 // Todo 2: Don't use for now. May be in future to differentiate between recordings from different cameras
                 // Retrieve device serial number for filename
@@ -635,9 +958,10 @@ namespace IVISS
                             //videoFilename = directoryPath;
 
 
-                            //// Todo 10: This naming scheme makes code crash. Use different style names
+                            // Todo 10: This naming scheme makes code crash. Use different style names
                             //videoFilename = String.Format(recordingPath + recording_number);
-                            ////videoFilename = String.Format(recordingPath + "{0}-{1}-{2} {3}-{4}-{5}.{6:000}", localDate.Month, localDate.Day, localDate.Year, localDate.Hour, localDate.Minute, localDate.Second, localDate.Millisecond);
+                            //videoFilename = String.Format(recordingPath + "{0}-{1}-{2} {3}-{4}-{5}.{6:000}", localDate.Month, localDate.Day, localDate.Year, localDate.Hour, localDate.Minute, localDate.Second, localDate.Millisecond);
+                            videoFilename = String.Format(recordingPath + "m1");
 
                             MJPGOption mjpgOption = new MJPGOption();
                             mjpgOption.frameRate = frameRateToSet;
@@ -693,7 +1017,28 @@ namespace IVISS
                             {
                                 var one_image = images.Take();
 
-                                video.Append(one_image);
+                                try
+                                {
+                                    IManagedImage rgbImage = one_image.Convert(PixelFormatEnums.BGR8);
+                                    var im = new Image<Bgr, byte>(rgbImage.bitmap);
+
+                                    //using (Bitmap image3 = new Bitmap(one_image.bitmap))
+                                    //{
+                                    //    image3.Save("test.bmp");
+                                    //    stitch_generator.AddImage(image3, false);
+                                    //}
+                                    stitch_generator.AddImage(im.ToBitmap(), false);
+
+                                    rgbImage.Dispose();
+                                    im.Dispose();
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine("IManagedImage to Bitmap conversion error");
+                                }
+
+                               // ? To save video, uncomment next line
+                                video.Append(one_image);    // Affraz
 
                                 //Thread.Sleep(5);      // Present only for debugging. To test if the code would break if this line is enabled
 
@@ -721,18 +1066,37 @@ namespace IVISS
                             }
                         }
 
+                        stitch_generator.AddImage(null, true);
+
                         /// //////////////////////////////////////////////////////////
 
                         // Close video file
                         video.Close();
 
+                        // Call the callback function to initiate the stiching code
+                        if (eventCallbackRecordingEnd != null)
+                            eventCallbackRecordingEnd("----------------- Zeeshan bhai -----------------------> ");
+
                         images.Dispose();
 
-                        images = new BlockingCollection<IManagedImage>();
+                        //images = new BlockingCollection<IManagedImage>();
 
                         recording_number++;
 
                         Console.WriteLine("End of \'SaveListTiVideo\'");
+
+                        var image = stitch_generator.GetStitchResult();
+                        stitched_image = image;
+
+                        //stitched_image.Save("_sitch.jpg");
+                        //stitched_image.Save(@"C:\IVISSTemp\_outPutVer_test.jpg", ImageFormat.Jpeg);
+                        stitched_image.Save(Global.TEMP_FOLDER + @"\StitchedImage.jpg", ImageFormat.Jpeg);
+
+                        System.Windows.Forms.Application.DoEvents();
+                        GC.Collect();
+                        System.Windows.Forms.Application.DoEvents();
+
+                        Console.WriteLine("Stitch image saved");
                     }
                 }
             }
@@ -744,7 +1108,7 @@ namespace IVISS
             }
 
             /// //////////////////////////////////////////////////////////
-            
+
             stopWatch.Stop();
             TimeSpan ts = stopWatch.Elapsed;
             stopWatch.Reset();
@@ -756,6 +1120,8 @@ namespace IVISS
 
             // Added 'waitHandle.Set();' to signal the completion of video conversion
             autoResetEvent.Set();
+
+            MainV1.isAutoStitchFinished = true;
 
             return result;
         }

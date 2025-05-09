@@ -17,12 +17,15 @@ using IVISS.Utility;
 using AForge.Video;
 using AForge.Video.FFMPEG;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
+using System.Drawing.Imaging;
+using ConfigurationUtility;
+using System.Net;
 
 namespace IVISS
 {
     public partial class Main : Form, IMain
     {
-        
         MainPresenter presenter;
 
         public event EventHandler BtnLights;
@@ -34,7 +37,12 @@ namespace IVISS
 
         public event EventHandler BtnSettings;
 
+        public event EventHandler FormLoaded;
+        public event EventHandler FormIsClosing;
+
         private string m_RecordingPath = @"C:\IVISSTemp\m1.avi";
+        private string m_SelectedImage = string.Empty;
+        private bool m_FOB = false;
 
         //=======================================================================
         [DllImport("DRIVERDLL.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -51,6 +59,7 @@ namespace IVISS
 
         [DllImport("DRIVERDLL.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void SaveDriver(IntPtr frameNo);
+
         //=======================================================================
 
         //====================================== NCD Component ========================================
@@ -61,48 +70,62 @@ namespace IVISS
         private bool m_Auto = false;
         private bool m_Live = false;
         private bool m_Overlay = false;
-
         //============================================================================================
 
         ANPR_Thread anprThread;
         private bool m_Anpr_Active = false;
+        private bool b_ALPRProcessing = true;
 
         //============================================================================================
 
         private string m_PlateColor;
         private string m_PlateSubColor;
         private string m_Origin;
-        private string m_Accuracy;
+        private int m_TotalFrameDriver;
+        private string m_IVISSRecordingPath;
 
-        private int m_TotalFrame_Driver;
-        private string m_IVISS_Recording_Path;
+        private string m_StitchPath;
+        private string m_ComparisonPath;
+        private string m_DestinationDir;
+        private Image imgCompositeImage;
 
         //============================================================================================
 
         private string Client_ID = string.Empty;
-
         VideoFileWriter writer = new VideoFileWriter();
         DateTime firstRecordedFrameTimeStamp, nextWrittenFrameTimeStamp;
+
+        System.Threading.Timer timerALPR;
 
         public Main()
         {
             InitializeComponent();
 
-            presenter = new MainPresenter(this);
+            // Show license renewal dialog
+            this.ShowLicenseRenewal();
 
             // On Cancel Close App
-            frmLogin frm = new frmLogin();
+            frmLoginV1 frm = new frmLoginV1();
             if (frm.ShowDialog() == DialogResult.Cancel)
             {
                 Environment.Exit(0);
             }
+
+            presenter = new MainPresenter(this);
 
             //******************************* LIVE ENTRY ACCURACY BOX ***********************************
             SetLiveAccuracyBox();
             //*******************************************************************************************
 
             //*********************************** FILL SETTINGS *****************************************
-            Task t2 = Task.Run(() => FillSettings());
+            Task t2 = Task.Run(() =>
+            {
+                // Fill database settings
+                this.FillSettings();
+
+                // Connect NCD
+                this.NCDConnect();
+            });
             //*******************************************************************************************
 
             //*********************************** READ CLIENT ID ****************************************
@@ -116,19 +139,139 @@ namespace IVISS
             //*******************************************************************************************
 
             //********************************** CONNECT TO RELAY ***************************************
-            Task tNCD = Task.Run(() =>
-            {
-                this.NCDConnect();
-            });
+            //Task tNCD = Task.Run(() =>
+            //{
+            //    this.NCDConnect();
+            //});
             //*******************************************************************************************
 
-            anprThread = new ANPR_Thread();
-            anprThread.anpr_result += AnprThread_anpr_result;
+            if (!Global.DEMO)
+            {
+                anprThread = new ANPR_Thread();
+                anprThread.anpr_result += AnprThread_anpr_result;
+
+                timerALPR = new System.Threading.Timer(new TimerCallback(LoopLiveALPR), null, 0, Global.LOOP_INTERVAL); // Loop Interval is in millisecond
+            }
+            //this.lblGate.Text = Global.m_Gate_Name;
+        }
+
+        private void LoopLiveALPR(object obj)
+        {
+            //int index = 0;
+
+            if (Global.ENTRY_LOOP_SENSOR)
+            {
+                //if (global.b_Connected[global.LIVE_ALPR])
+                //{
+                string address = string.Format("http://" + Global.ALPR_CAMERA_HOST[Global.ENTRY_ALPR] + "/trigger/gpiotrigger?getgpin&wfilter=1");
+                string response = string.Empty;
+
+                try
+                {
+                    using (WebClient client = new WebClient())
+                    {
+                        client.Proxy = null;
+                        response = client.DownloadString(address);
+                    }
+
+                }
+                catch (Exception ex) { }
+
+                Global.b_StartCapturing[Global.ENTRY_ALPR] = (response.IndexOf("1") != -1);
+            }
+            else
+            {
+                Global.b_StartCapturing[Global.ENTRY_ALPR] = true;
+            }
+        }
+
+        private void ShowLicenseRenewal()
+        {
+            var directory = Global.LIC_DIRECTORY;
+            int diff = 0;
+
+            if (File.Exists(directory + "sys.dll"))
+            {
+                try
+                {
+                    var txt = StringCipher.Decrypt(File.ReadAllText(directory + "sys.dll"), Global.PASSPHRASE);
+
+                    if (txt != "1")
+                    {
+                        try
+                        {
+                            if (DateTime.Now > Convert.ToDateTime(txt))
+                            {
+                                // set to 1 if license has expired
+                                File.WriteAllText(directory + "sys.dll", StringCipher.Encrypt("1", Global.PASSPHRASE));
+                            }
+                            else
+                            {
+                                // start giving message from 30 days prior to expiration
+                                // from 4-6 months give no message but give license renewal dialog
+                                diff = ((Convert.ToDateTime(txt).AddDays(-60)) - DateTime.Now).Days;
+
+                                if (diff >= 0 && diff <= Global.RENEWAL_MESSAGE_DAYS)
+                                {
+                                    Global.ShowMessage("License is going to expire in " + diff + " days", false);
+                                }
+                                else if (diff >= Global.RENEWAL_GRACE_DAYS && diff < 0)
+                                {
+                                    var frmLR = new frmLicRenewal();
+                                    if (frmLR.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
+                                    {
+                                    }
+                                }
+                                return;
+                            }
+                        }
+                        catch (Exception ex)
+                        { }
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    //MessageBox.Show("Invalid License");
+                    Global.ShowMessage("Invalid License Key", false);
+                }
+
+                var frm = new frmLicRenewalV1();
+                if (frm.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
+                {
+                    //disconnectButton_Click(null, null);
+                    //m_bLeaveMsg = false;
+
+                    //after 6 months after renewal dialog close the exe
+                    //this.Close();
+                }
+            }
+            else
+            {
+                //var dt = StringCipher.Encrypt(DateTime.Now.AddDays(global.RENEWAL_LICENSE_DAYS).ToString(), global.PASSPHRASE);
+                //if (directory.Length > 0)
+                //{
+                //    Directory.CreateDirectory(directory);
+                //}
+                //File.WriteAllText(directory + "sys.dll", dt);
+
+                var frm = new frmLicRenewalV1();
+                if (frm.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
+                {
+                    //disconnectButton_Click(null, null);
+                    //m_bLeaveMsg = false;
+
+                    //after 6 months after renewal dialog close the exe
+                    //this.Close();
+                }
+
+                //Global.ShowMessage("Invalid License Key", false);
+            }
         }
 
         private void AnprThread_anpr_result(ANPR_RESULT_STRUCT result)
         {
-            //if (!alpr.b_ALPRProcessing)
+            //if (!b_ALPRProcessing)
             //    return;
 
             gxPG4 frame = result.frame;
@@ -146,31 +289,18 @@ namespace IVISS
 
             BeginInvoke((MethodInvoker)delegate
             {
-                ////Draw the frame of the number plate on the image
-                //Graphics g = Graphics.FromImage((Image)bm);
-                //g.DrawLine(new Pen(Color.Red), frame.x1, frame.y1, frame.x2, frame.y2);
-                //g.DrawLine(new Pen(Color.Red), frame.x2, frame.y2, frame.x3, frame.y3);
-                //g.DrawLine(new Pen(Color.Red), frame.x3, frame.y3, frame.x4, frame.y4);
-                //g.DrawLine(new Pen(Color.Red), frame.x4, frame.y4, frame.x1, frame.y1);
-
-
-                // set displayed plate text
-                //txtLiveLPEnglish.Text = textascii;
-                //this.txtLiveLPArabic.Text = text;
 
                 txtLiveLPEnglish.Text = text.PureAscii().Trim();
                 txtLiveLPArabic.Text = text.PureUnicode().Trim();
 
-                //txtLiveLPEnglish.Text = text.PureAscii().Trim();
-                //txtLiveLPArabic.Text = text;
+                this.plateColor = plateColor;
+                this.plateSubColor = plateSubColor;
+                this.origin = origin;
 
-                this.m_PlateColor = plateColor;
-                this.m_PlateSubColor = plateSubColor;
-                this.m_Origin = origin;
+                this.accuracy = accuracy;
 
-                this.m_Accuracy = accuracy;
-                this.lblLiveAccuracy.Text = accuracy + "%";
-                this.pBoxLiveALPRBar.BackgroundImage = Global.GetAccuracyBitmap(accuracy);
+                // this.lblLiveAccuracy.Text = accuracy + "%";
+                // this.pBoxLiveALPRBar.BackgroundImage = Global.GetAccuracyBitmap(accuracy);
 
                 //Task t = Task.Run(() =>
                 //{
@@ -185,7 +315,8 @@ namespace IVISS
                     });
                 });
 
-                //alpr.b_ALPRProcessing = false;
+                b_ALPRProcessing = false;
+
                 //////saving to database
                 ////if (!b_m_Auto)
                 ////{
@@ -233,26 +364,12 @@ namespace IVISS
                 }
             }
 
+            //if (authorization.Length > 0)
+            //    lblVisitorClassificationLive.Text = authorization;
+            //else
+            //    lblVisitorClassificationLive.Text = "VISITOR";
 
-            // classification
-            if (authorization == "PROHIBITED") //red
-            {
-                pBoxAuthorizationLive.Image = (Bitmap)IVISS.Properties.Resources.red_card;
-                //this.PlaySound();
-            }
-            else if (authorization == "AUTHORIZED") //green
-            {
-                pBoxAuthorizationLive.Image = (Bitmap)IVISS.Properties.Resources.green_card;
-            }
-            else
-            {
-                pBoxAuthorizationLive.Image = (Bitmap)IVISS.Properties.Resources.yellow_card;
-            }
-
-            if (authorization.Length > 0)
-                lblVisitorClassificationLive.Text = authorization;
-            else
-                lblVisitorClassificationLive.Text = "VISITOR";
+            SetAuthorizationBox(authorization);
         }
 
         private void RunIPCameras()
@@ -260,7 +377,8 @@ namespace IVISS
             //********************************************************* Driver Entry *************************************************************
             //************************************************************************************************************************************
             // create video source
-            MJPEGStream mjpegSourceDriver = new MJPEGStream(@"http://" + Global.mDriverCamIP + "/stw-cgi/video.cgi?msubmenu=stream&action=view&Resolution=1920x1080");
+            //MJPEGStream mjpegSourceDriver = new MJPEGStream(@"http://" + Global.mDriverCamIP + "/stw-cgi/video.cgi?msubmenu=stream&action=view&Resolution=1920x1080");
+            MJPEGStream mjpegSourceDriver = new MJPEGStream(@"http://" + Global.mDriverCamIP + "/stw-cgi/video.cgi?msubmenu=stream&action=view");
 
             if (Global.mDriverCamPassword!=null && Global.mDriverCamPassword.Length > 0)
             {
@@ -302,6 +420,45 @@ namespace IVISS
                 OpenVideoSourceLP(mjpegSourceALPR);
             }
         }
+        
+        public void LoadCompositeImage(string destDir)
+        {
+            this.m_DestinationDir = destDir;
+
+            BeginInvoke((MethodInvoker)delegate
+            {
+                tmCompositeImage.Start();
+
+                pBoxComparison.SizeMode = PictureBoxSizeMode.CenterImage;
+                pBoxComparison.Image = Image.FromFile("loader.gif");
+            });
+        }
+
+        public void LoadImageComparison(string dir)
+        {
+            try
+            {
+                if (File.Exists(dir + @"\outPutVer.jpg"))
+                {
+                    pBoxStitch.SizeMode = PictureBoxSizeMode.StretchImage;
+
+                    //pBoxComparison.Image = Image.FromFile(this.m_DestinationDir + @"\outPutVer.jpg");
+                    using (FileStream fs = new FileStream(dir + @"\outPutVer.jpg", FileMode.Open))
+                    {
+                        pBoxStitch.Image = Image.FromStream(fs);
+                        fs.Close();
+                    }
+
+                    tmCompositeImage.Stop();
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        #region VIDEO_SOURCE_PLAYER
 
         // Open video source
         private void OpenVideoSourceDriver(IVideoSource source)
@@ -317,7 +474,6 @@ namespace IVISS
                 // start new video source
                 vspDriver.VideoSource = source;
                 vspDriver.Start();
-
             }
             catch (Exception ex)
             {
@@ -447,14 +603,66 @@ namespace IVISS
             }
         }
 
+        private void vspDriver_NewFrame(object sender, ref Bitmap image)
+        {
+            try
+            {
+                if (m_Recording)
+                {
+
+                    //var frame = eventArgs.Frame;   // That's a Bitmap
+                    var now = DateTime.Now;
+
+                    if (this.firstRecordedFrameTimeStamp == DateTime.MinValue)
+                        this.firstRecordedFrameTimeStamp = now;
+
+                    if (this.nextWrittenFrameTimeStamp < now)   // this.nextWrittenFrameTimeStamp is initialized with DateTime.MinValue
+                    {
+                        var elapsed = now - this.firstRecordedFrameTimeStamp;
+
+                        //this.videoWriter.WriteVideoFrame(frame.Resize(720, 480), elapsed);
+
+                        writer.WriteVideoFrame(image, elapsed);
+                        this.nextWrittenFrameTimeStamp = now.AddMilliseconds(1000 / 30);
+                    }
+
+                    //writer.WriteVideoFrame(image);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Global.AppendString("videoSourcePlayer_NewFrame: " + ex.ToString());
+                //Console.Write(ex.ToString());
+            }
+        }
+
+        private void vspLP_NewFrame(object sender, ref Bitmap image)
+        {
+            try
+            {
+                if (image != null && Global.b_StartCapturing[Global.ENTRY_ALPR]) // && !m_Anpr_Active
+                {
+                    anprThread.SetImage(new Bitmap(image));
+                }
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show(e.ToString());
+                Global.WriteLog("vspExitALPR_NewFrame: " + ex.ToString());
+            }
+        }
+
+        #endregion 
+
         private void SetLiveAccuracyBox()
         {
+            /*
             var pos = this.PointToScreen(lblVisitorClassificationLive.Location);
             pos = pBoxAuthorizationLive.PointToClient(pos);
 
-            //lblVisitorClassificationLive.Parent = pBoxAuthorizationLive;
             pBoxAuthorizationLive.Controls.Add(lblVisitorClassificationLive);
-            lblVisitorClassificationLive.Location = new Point(pos.X + 15, 150); //pos;
+            lblVisitorClassificationLive.Location = new Point(pos.X + 15, 150);
             lblVisitorClassificationLive.BackColor = Color.Transparent;
 
             var pos1 = this.PointToScreen(pBoxLiveALPRBar.Location);
@@ -478,6 +686,7 @@ namespace IVISS
             lblLiveOCRAccuracy.Parent = pBoxAuthorizationLive;
             lblLiveOCRAccuracy.Location = new Point(pos3.X + 10, 8);
             lblLiveOCRAccuracy.BackColor = Color.Transparent;
+            */
         }
 
         private void FillSettings()
@@ -507,18 +716,30 @@ namespace IVISS
 
             try
             {
+                ////this.ncd1.PortName = "COM" + Global.mNCDPortNo;
+                this.ncd1.IPAddress = Global.mIPAddress;
 
-                this.ncd1.PortName = "COM" + Global.mNCDPortNo;
-                //this.ncdComponent1.PortName = "COM3";
-                this.ncd1.BaudRate = 115200;
+                if (!String.IsNullOrEmpty(Global.mListenPort))
+                    this.ncd1.Port = int.Parse(Global.mListenPort);
 
-                this.ncd1.OpenPort();       // open the port
+                ////this.ncdComponent1.PortName = "COM3";
+                //this.ncd1.BaudRate = 115200;
 
-                if (!this.ncd1.IsOpen)
+                BeginInvoke((MethodInvoker)delegate
                 {
-                    //MessageBox.Show("Fail to open");
-                    //Application.Exit();
-                }
+                    this.ncd1.UsingComPort = false;
+                    this.ncd1.OpenPort();       // open the port
+
+                    if (!this.ncd1.IsOpen)
+                    {
+                        MessageBox.Show("Failed to open Relay Contoller");
+                        //Application.Exit();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Successfully connected!");
+                    }
+                });
 
                 //if (this.ncd1.IsOpen)
                 //{
@@ -527,10 +748,26 @@ namespace IVISS
                 //}
 
                 this.ncd1.ProXR.RelayBanks.SelectBank(1);   // select the first bank
-            }
-            catch
-            {
+                //NCDLib.WriteBytes(ncd1, )
+                //NCDLib.WriteBytesAPI(ncd1, UsingAPI, 254, 116, SetBank.Value);
+                //ncd1.WriteBytesAPI(ncd1, true, 256, 116, 1);
 
+                //var NCDLib1 = new NCDLib();
+                
+                //ncd1.SetTcpWritePace(0);
+                //ncd1.WriteBytes();
+
+                //byte[] cmd = { 254, 8 };
+                //ncd1.WriteBytesAPI(cmd);
+
+                //ncd1.ProXR.RelayBanks.TurnOnAllRelays();
+            }
+            catch(Exception ex)
+            {
+                BeginInvoke((MethodInvoker)delegate
+                {
+                    MessageBox.Show(ex.ToString());
+                });
             }
         }
 
@@ -541,6 +778,7 @@ namespace IVISS
                 if (On)
                 {
                     this.ncd1.ProXR.RelayBanks.TurnOnRelay(Convert.ToByte(portNo));
+                    //NCDLib.WriteBytesAPI(ref ncd1, true, 254, 116, 1);
                 }
                 else
                 {
@@ -584,31 +822,32 @@ namespace IVISS
 
         #endregion 
 
-        private void btnClose_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
         private void Main_Load(object sender, EventArgs e)
         {
-            
-            //pBoxStitch.
-            pBoxStitch.Image = Image.FromFile(@"C:\IVISSTemp\outPutVer.jpg");
-            pBoxStitch.BackgroundImageLayout = ImageLayout.Zoom;
+            if (Global.DEMO)
+            {
+                m_IVISSRecordingPath = @"C:\IVISSTemp";
+                pBoxStitch.Image = Image.FromFile(this.m_IVISSRecordingPath + @"\outPutVer.jpg");
+                pBoxStitch.BackgroundImageLayout = ImageLayout.Zoom;
 
-            //Image flipImage = pBoxStitch.Image;
-            //flipImage.RotateFlip(RotateFlipType.Rotate90FlipY);
-            //pBoxStitch.Image = flipImage;
+                //Image flipImage = pBoxStitch.Image;
+                //flipImage.RotateFlip(RotateFlipType.Rotate90FlipY);
+                //pBoxStitch.Image = flipImage;
 
-            //pBoxComparison.Image = Image.FromFile(@"C:\IVISSTemp\outPutVer.jpg");
-            pBoxComparison.Image = Image.FromFile(@"C:\IVISSTemp\photoshop2.jpg");
-            pBoxComparison.BackgroundImageLayout = ImageLayout.Stretch;
+                //pBoxComparison.Image = Image.FromFile(@"C:\IVISSTemp\outPutVer.jpg");
 
-            //pBoxDriver.Image = Image.FromFile(@"C:\IVISSTemp\driver.bmp");
-            //pBoxScene.Image = Image.FromFile(@"C:\IVISSTemp\scene.bmp");
-            //pBoxLP.Image = Image.FromFile(@"C:\IVISSTemp\lpnum.bmp");
+                this.m_ComparisonPath = @"C:\IVISSTemp";
+                pBoxComparison.Image = Image.FromFile(this.m_ComparisonPath + "\\" + "photoshop2.jpg");
+                pBoxComparison.BackgroundImageLayout = ImageLayout.Stretch;
 
-            lblLiveAccuracy.Text = "99%";
+                vspDriver.BackgroundImage = Image.FromFile(@"C:\IVISSTemp\driver.bmp");
+                vspScene.BackgroundImage = Image.FromFile(@"C:\IVISSTemp\scene.bmp");
+                vspLP.BackgroundImage = Image.FromFile(@"C:\IVISSTemp\lpnum.bmp");
+
+                this.txtLiveLPEnglish.Text = "6RBZ328";
+            }
+
+            //lblLiveAccuracy.Text = "99%";
 
             lblRelay1.Text = Global.mlblRelay1;
             lblRelay1Arab.Text = Global.mlblRelayArab1;
@@ -622,18 +861,40 @@ namespace IVISS
             lblRelay4.Text = Global.mlblRelay4;
             lblRelay4Arab.Text = Global.mlblRelayArab4;
 
-            this.RunIPCameras();
+            // Load presenter form loaded
+            FormLoaded(sender, e);
+            
+            if (!Global.DEMO)
+                this.RunIPCameras();
 
+            this.KeyUp += Main_KeyUp;
         }
 
-        private void btnSearchRecords_Click(object sender, EventArgs e)
+        private void Main_KeyUp(object sender, KeyEventArgs e)
         {
-            BtnSearchRecords(sender, e);
+            if (e.KeyCode == Keys.F9)
+            {
+                this.txtLiveLPEnglish.Clear();
+                this.txtLiveLPArabic.Clear();
+
+                b_ALPRProcessing = true;
+            }
         }
 
+        #region PROPERTIES
         public void BindData(DataTable dt)
         {
-            dgView.DataSource = dt;
+            try
+            {
+                BeginInvoke((MethodInvoker)delegate
+                {
+                    dgView.DataSource = dt;
+                });
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
 
         public string lpNumEnglish
@@ -647,6 +908,14 @@ namespace IVISS
             set { this.txtLiveLPArabic.Text = value; }
             get { return this.txtLiveLPArabic.Text; }
         }
+
+        public string accuracy { set; get; }
+
+        public string origin { set; get; }
+
+        public string plateColor { set; get; }
+
+        public string plateSubColor { set; get; }
 
         public Bitmap stitchImage
         {
@@ -664,232 +933,180 @@ namespace IVISS
             get { return this.m_RecordingPath; }
         }
 
-        public void Save()
+        public bool auto
         {
-
+            set { this.m_Auto = value; }
+            get { return this.m_Auto; }
         }
 
+        #endregion
+
+        #region BUTTON_EVENTS
+
+        private void btnSearchRecords_Click(object sender, EventArgs e)
+        {
+            BtnSearchRecords(sender, e);
+        }
+
+        private void btnClose_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        // Start Recording
         private void btnRecordingOff_Click(object sender, EventArgs e)
         {
+            this.StartRecording();
+
             BtnRecordingOff(sender, e);
-            m_Recording = true;
-
-            writer.Close();
-
-            // On-screen display
-            //ShowStatus();
-
-            btnRecordingOn.Visible = true;
-            btnRecordingOff.Visible = false;
         }
 
+        public bool StopRecording()
+        {
+            try
+            {
+                m_Recording = false;
+
+                //this.BeginInvoke((MethodInvoker)delegate
+                //{
+                    writer.Close();
+
+                    //MessageBox.Show("writer.Close();");
+                    // On-screen display
+                    //ShowStatus();
+
+                    // red button
+                    btnRecordingOn.Visible = false;
+                    // green button
+                    btnRecordingOff.Visible = true;
+                //});
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                return false;
+            }
+
+            return true;
+        }
+
+        // Stop Recording
         private void btnRecordingOn_Click(object sender, EventArgs e)
         {
+            this.StopRecording();
+
             BtnRecordingOn(sender, e);
-            //StopRecord();
-
-            //stop recording driver camera
-            m_Recording = false;
-
-            // ********************** EMGU ************************************************************************************************************************
-            //int FrameRate = 15; //Set the framerate manually as a camera would retun 0 if we use GetCaptureProperty()
-            ////Set up a video writer component
-            ///*                                        ---USE----
-            ///* VideoWriter(string fileName, int compressionCode, int fps, int width, int height, bool isColor)
-            // *
-            // * Compression code. 
-            // *      Usually computed using CvInvoke.CV_FOURCC. On windows use -1 to open a codec selection dialog. 
-            // *      On Linux, use CvInvoke.CV_FOURCC('I', 'Y', 'U', 'V') for default codec for the specific file name. 
-            // * 
-            // * Compression code. 
-            // *      -1: allows the user to choose the codec from a dialog at runtime 
-            // *       0: creates an uncompressed AVI file (the filename must have a .avi extension) 
-            // *
-            // * isColor.
-            // *      true if this is a color video, false otherwise
-            // */
-            //VW = new VideoWriter("C:\\vittemp\\driver.avi", CvInvoke.CV_FOURCC('W', 'M', 'V', '3'), (int)FrameRate, DRIVER_CAM_WIDTH, DRIVER_CAM_HEIGHT, true);
-            //*****************************************************************************************************************************************************
-
-            //***********************  AFORGE *********************************************************************************************************************
-
-            firstRecordedFrameTimeStamp = DateTime.MinValue;
-            nextWrittenFrameTimeStamp = DateTime.MinValue;
-
-            writer.Open(Global.TEMP_FOLDER + "\\driver.avi", Global.DRIVER_CAM_WIDTH, Global.DRIVER_CAM_HEIGHT, 30, VideoCodec.WMV2, 10000 * 1000); // 
-
-            //*****************************************************************************************************************************************************
-
-            string licensePlate = this.txtLiveLPEnglish.Text;
-            string licensePlateArab = this.txtLiveLPArabic.Text;
-
-            btnRecordingOn.Visible = false;
-            btnRecordingOff.Visible = true;
         }
 
-        private void SetFilesToOpen(string path, string plate, string plateArab, string authorization, string accuracy, string gate, string visitorStatus)
+        public bool StartRecording()
         {
+            try
+            {
+                //t = TimeSpan.Zero;
 
-            InitializeDriver((IntPtr)vspDriver.Handle, (IntPtr)this.vspDriver.Width, (IntPtr)this.vspDriver.Height);
+                // Delete Stitch Image and Translation.Dat
+                Task tDel = Task.Run(() =>
+                {
+                    if (File.Exists(Global.TEMP_FOLDER + "\\" + "outPutVer.jpg"))
+                        File.Delete(Global.TEMP_FOLDER + "\\" + "outPutVer.jpg");
 
-            Task t = Task.Run(() =>
+                    if (File.Exists(Global.TEMP_FOLDER + "\\" + "translation.dat"))
+                        File.Delete(Global.TEMP_FOLDER + "\\" + "translation.dat");
+                });
+
+                // ********************** EMGU ************************************************************************************************************************
+                //int FrameRate = 15; //Set the framerate manually as a camera would retun 0 if we use GetCaptureProperty()
+                ////Set up a video writer component
+                ///*                                        ---USE----
+                ///* VideoWriter(string fileName, int compressionCode, int fps, int width, int height, bool isColor)
+                // *
+                // * Compression code. 
+                // *      Usually computed using CvInvoke.CV_FOURCC. On windows use -1 to open a codec selection dialog. 
+                // *      On Linux, use CvInvoke.CV_FOURCC('I', 'Y', 'U', 'V') for default codec for the specific file name. 
+                // * 
+                // * Compression code. 
+                // *      -1: allows the user to choose the codec from a dialog at runtime 
+                // *       0: creates an uncompressed AVI file (the filename must have a .avi extension) 
+                // *
+                // * isColor.
+                // *      true if this is a color video, false otherwise
+                // */
+                //VW = new VideoWriter("C:\\vittemp\\driver.avi", CvInvoke.CV_FOURCC('W', 'M', 'V', '3'), (int)FrameRate, DRIVER_CAM_WIDTH, DRIVER_CAM_HEIGHT, true);
+                //*****************************************************************************************************************************************************
+
+                //***********************  AFORGE *********************************************************************************************************************
+
+                //this.BeginInvoke((MethodInvoker)delegate
+                //{
+                    firstRecordedFrameTimeStamp = DateTime.MinValue;
+                    nextWrittenFrameTimeStamp = DateTime.MinValue;
+
+                    writer.Open(Global.TEMP_FOLDER + "\\driver.avi", Global.DRIVER_CAM_WIDTH, Global.DRIVER_CAM_HEIGHT, 30, VideoCodec.WMV2, 10000 * 1000); // 
+
+                    //*****************************************************************************************************************************************************
+
+                    Task tSnap = Task.Run(() => { TakeSnapshots(); });
+
+                    //start recording driver camera
+                    m_Recording = true;
+
+                    //lpNumEnglish = this.txtLiveLPEnglish.Text;
+                    //lpNumArabic = this.txtLiveLPArabic.Text;
+
+                    // red button
+                    btnRecordingOn.Visible = true;
+                    // green button
+                    btnRecordingOff.Visible = false;
+                //});
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private void TakeSnapshots(bool exit = false)
+        {
+            if (!exit)
             {
                 try
                 {
+                    // Entry Driver
                     BeginInvoke((MethodInvoker)delegate
                     {
-                        this.txtLiveLPEnglish.Text = plate;
-                        this.txtLiveLPArabic.Text = plateArab; //Regex.Replace(plateArab, @"[^\u0020-\u007E]", string.Empty);
+                        using (Bitmap bitmap = Global.PrintWindow(vspDriver.Handle))
+                        {
+                            bitmap.Save(Global.TEMP_FOLDER + "\\Driver.bmp", ImageFormat.Bmp);
+                        }
 
-                        if (accuracy != null && accuracy.Length > 0)
-                            lblLiveAccuracy.Text = accuracy + "%";
-                        else
-                            lblLiveAccuracy.Text = "99%";
-
-                        this.lblVisitorClassificationLive.Text = (authorization == "VISITOR") ? "    " + authorization : authorization;
-
-                        this.SetAuthorizationBox(authorization);
-
-                //if (File.Exists(path + "\\Driver.bmp"))
-                //{
-                //    using (FileStream fs = new FileStream(path + "\\Driver.bmp", FileMode.Open))
-                //    {
-                //        vspDriver.BackgroundImage = Image.FromStream(fs);
-                //        fs.Close();
-                //    }
-                //}
-                //else
-                //{
-                //    vspDriver.BackgroundImage = null;
-                //}
-
-                    if (File.Exists(path + "\\Driver.bmp"))
-                        this.vspDriver.BackgroundImage = Image.FromFile(path + "\\Driver.bmp");
-                    else
-                        this.vspDriver.BackgroundImage = null;
-
-                    if (File.Exists(path + "\\Scene.bmp"))
-                        this.vspScene.BackgroundImage = Image.FromFile(path + "\\Scene.bmp");
-                    else
-                        this.vspScene.BackgroundImage = null;
-
-                    if (File.Exists(path + "\\LpNum.bmp"))
-                        this.vspLP.BackgroundImage = Image.FromFile(path + "\\LpNum.bmp");
-                    else
-                        this.vspLP.BackgroundImage = null;
-
-                //************************************************** IF LCC SHOW LICENSE PLATE Image on Top ******************************************************
-                    //if (File.Exists(path + "\\LpNum.bmp"))
-                    //{
-                    //    using (FileStream fs = new FileStream(path + "\\LpNum.bmp", FileMode.Open))
-                    //    {
-                    //        vspLP.BackgroundImage = Image.FromStream(fs);
-                    //        fs.Close();
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    vspLP.BackgroundImage = null;
-                    //}
-                //************************************************************************************************************************************************
-                });
-
-                //Initialize(hwnd, (IntPtr)m_ScreenWidth);
-                //stop video if not stopped already
-                //Stop();
-
-                //******************************************** Open Driver File *******************************************************
-
-                if (m_TotalFrame_Driver > 0)
-                {
-                    CloseFilesDriver();
-                    m_TotalFrame_Driver = 0;
-                    tbDriver.Value = 1;
-                }
-
-                m_TotalFrame_Driver = OpenFilesDriver(path);
-
-                if (m_TotalFrame_Driver > 0)
-                {
-                    BeginInvoke((MethodInvoker)delegate
-                    {
-                        tbDriver.SetRange(1, m_TotalFrame_Driver);
                     });
                 }
+                catch (Exception ex)
+                {
+                }
 
-                //*********************************************************************************************************************
+                try
+                {
+                    //// Entry ALPR
+                    //BeginInvoke((MethodInvoker)delegate
+                    //{
+                    //    using (Bitmap bitmap = global.PrintWindow(pBoxLiveLP.Handle))
+                    //    {
+                    //        bitmap.Save(global.TEMP_FOLDER + "\\LpNum.bmp", ImageFormat.Bmp);
+                    //    }
 
+                    //});
+                }
+                catch (Exception ex)
+                {
+                }
             }
-                catch (Exception ex) { /*MessageBox.Show(ex.ToString());*/ }
-            });
-
-            t.Wait();
         }
-
-        private void SetAuthorizationBox(string authorization, bool play = false)
-        {
-            // classification
-            if (authorization == "PROHIBITED") //yellow
-            {
-                pBoxAuthorizationLive.BackgroundImage = (Bitmap)IVISS.Properties.Resources.red_card;
-
-                pBoxLiveALPRBar.BackColor = Color.FromArgb(235, 107, 97);
-
-                this.lblLiveAccuracy.BackColor = Color.FromArgb(235, 107, 97);
-                this.lblLiveOCRAccuracy.BackColor = Color.FromArgb(235, 107, 97);
-
-                lblVisitorClassificationLive.BackColor = Color.FromArgb(241, 79, 73);
-
-                //// Play Sound
-                //if (play)
-                //    this.PlaySound();
-            }
-            else if (authorization == "AUTHORIZED") //green
-            {
-                pBoxAuthorizationLive.BackgroundImage = (Bitmap)IVISS.Properties.Resources.green_card;
-
-                pBoxLiveALPRBar.BackColor = Color.FromArgb(121, 246, 152);
-
-                this.lblLiveAccuracy.BackColor = Color.FromArgb(121, 246, 152);
-                this.lblLiveOCRAccuracy.BackColor = Color.FromArgb(121, 246, 152);
-
-                lblVisitorClassificationLive.BackColor = Color.FromArgb(0, 204, 79);
-
-                //this.lblVisitorClassification.ForeColor = Color.White;
-                //this.lblOCRAccuracy.ForeColor = Color.White;
-                //this.lblPlayAccuracy.ForeColor = Color.White;
-            }
-            else
-            {
-                pBoxAuthorizationLive.BackgroundImage = (Bitmap)IVISS.Properties.Resources.yellow_card;
-
-                pBoxLiveALPRBar.BackColor = Color.FromArgb(252, 255, 132);
-
-                this.lblLiveAccuracy.BackColor = Color.FromArgb(252, 255, 132);
-                this.lblLiveOCRAccuracy.BackColor = Color.FromArgb(252, 255, 132);
-                
-                lblVisitorClassificationLive.BackColor = Color.FromArgb(238, 218, 23);
-            }
-
-            if (authorization.Length > 0)
-                lblVisitorClassificationLive.Text = authorization;
-            else
-                lblVisitorClassificationLive.Text = "VISITOR";
-        }
-  
         private void btnSettings_Click(object sender, EventArgs e)
         {
             BtnSettings(sender, e);
-        }
-
-        private void Main_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            ncd1.ClosePort();
-
-            CloseVideoSourceDriver();
-            CloseVideoSourceScene();
-            CloseVideoSourceLP();
-
         }
 
         private void btnOpen1_Click(object sender, EventArgs e)
@@ -912,7 +1129,7 @@ namespace IVISS
         {
             this.btnOpen2.BackgroundImage = (Bitmap)IVISS.Properties.Resources.medium_btn_green_pressed;
             this.btnClose2.BackgroundImage = (Bitmap)IVISS.Properties.Resources.medium_btn_grey;
-            
+
             TurnLC(Global.mNCDPort2, true);
         }
 
@@ -956,31 +1173,218 @@ namespace IVISS
             TurnLC(Global.mNCDPort4, false);
         }
 
-        private void vspLP_NewFrame(object sender, ref Bitmap image)
+        #endregion
+
+        private void SetFilesToOpen(string path, string plate, string plateArab, string authorization, string accuracy, string gate, string visitorStatus)
         {
-            try
+            InitializeDriver((IntPtr)vspDriver.Handle, (IntPtr)this.vspDriver.Width, (IntPtr)this.vspDriver.Height);
+
+            Task t = Task.Run(() =>
             {
-                if (image != null && Global.b_StartCapturing && !m_Anpr_Active)
+                try
                 {
-                    anprThread.SetImage(new Bitmap(image));
+                    BeginInvoke((MethodInvoker)delegate
+                    {
+                        
+                        this.txtLiveLPEnglish.Text = plate;
+                        this.txtLiveLPArabic.Text = plateArab; //Regex.Replace(plateArab, @"[^\u0020-\u007E]", string.Empty);
+
+                        // Load image comparison
+                        if (presenter.LPExists())
+                            this.LoadImageComparison(presenter.SelectImageComparison());
+                        else
+                            pBoxStitch.Image = null;
+
+                        //if (accuracy != null && accuracy.Length > 0)
+                        //    lblLiveAccuracy.Text = accuracy + "%";
+                        //else
+                        //    lblLiveAccuracy.Text = "99%";
+
+                        this.lblVisitorClassificationLive.Text = (authorization == "VISITOR") ? "    " + authorization : authorization;
+
+                        this.SetAuthorizationBox(authorization);
+
+                        //// Driver 
+                        //if (File.Exists(path + @"\Driver.bmp"))
+                        //{
+                        //    using (FileStream fs = new FileStream(path + @"\Driver.bmp", FileMode.Open))
+                        //    {
+                        //        vspDriver.BackgroundImage = Image.FromStream(fs);
+                        //        fs.Close();
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    vspDriver.BackgroundImage = null;
+                        //}
+
+                        //// Scene Camera
+                        //if (File.Exists(path + @"\Scene.bmp"))
+                        //{
+                        //    using (FileStream fs = new FileStream(path + @"\Scene.bmp", FileMode.Open))
+                        //    {
+                        //        vspScene.BackgroundImage = Image.FromStream(fs);
+                        //        fs.Close();
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    vspScene.BackgroundImage = null;
+                        //}
+
+                        //// License Plate Num
+                        //if (File.Exists(path + @"\LpNum.bmp"))
+                        //{
+                        //    using (FileStream fs = new FileStream(path + @"\LpNum.bmp", FileMode.Open))
+                        //    {
+                        //        vspLP.BackgroundImage = Image.FromStream(fs);
+                        //        fs.Close();
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    vspLP.BackgroundImage = null;
+                        //}
+
+                        //============================================================================
+
+                        if (File.Exists(path + @"\outPutVer.jpg"))
+                        {
+                            using (FileStream fs = new FileStream(path + @"\outPutVer.jpg", FileMode.Open))
+                            {
+                                imgCompositeImage = Image.FromStream(fs);
+                                pBoxComparison.Image = imgCompositeImage;
+                                fs.Close();
+                            }
+                        }
+                        else
+                        {
+                            this.pBoxComparison.Image = null;
+                        }
+
+                        //============================================================================
+
+                        //************************************************** IF LCC SHOW LICENSE PLATE Image on Top ******************************************************
+                        //if (File.Exists(path + "\\LpNum.bmp"))
+                        //{
+                        //    using (FileStream fs = new FileStream(path + "\\LpNum.bmp", FileMode.Open))
+                        //    {
+                        //        vspLP.BackgroundImage = Image.FromStream(fs);
+                        //        fs.Close();
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    vspLP.BackgroundImage = null;
+                        //}
+                        //************************************************************************************************************************************************
+                    });
+
+                    //Initialize(hwnd, (IntPtr)m_ScreenWidth);
+                    //stop video if not stopped already
+                    //Stop();
+
+                    //******************************************** Open Driver File *******************************************************
+
+                    //if (m_TotalFrameDriver > 0)
+                    //{
+                    //    CloseFilesDriver();
+                    //    m_TotalFrameDriver = 0;
+                    //    tbDriver.Value = 1;
+                    //}
+
+                    //m_TotalFrameDriver = OpenFilesDriver(path);
+
+                    //if (m_TotalFrameDriver > 0)
+                    //{
+                    //    BeginInvoke((MethodInvoker)delegate
+                    //    {
+                    //        tbDriver.SetRange(1, m_TotalFrameDriver);
+                    //    });
+                    //}
+
+                    //*********************************************************************************************************************
                 }
-            }
-            catch (Exception ex)
+                catch (Exception ex) { /*MessageBox.Show(ex.ToString());*/ }
+            });
+
+            t.Wait();
+        }
+
+        private void SetAuthorizationBox(string authorization, bool play = false)
+        {
+            // classification
+            if (authorization == "PROHIBITED") //yellow
             {
-                //MessageBox.Show(e.ToString());
-                Global.WriteLog("vspExitALPR_NewFrame: " + ex.ToString());
+                /*
+                pBoxAuthorizationLive.BackgroundImage = (Bitmap)IVISS.Properties.Resources.red_card;
+                pBoxLiveALPRBar.BackColor = Color.FromArgb(235, 107, 97);
+                this.lblLiveAccuracy.BackColor = Color.FromArgb(235, 107, 97);
+                this.lblLiveOCRAccuracy.BackColor = Color.FromArgb(235, 107, 97);
+                */
+
+                lblVisitorClassificationLive.BackColor = Color.FromArgb(241, 79, 73);
+
+                //// Play Sound
+                //if (play)
+                //    this.PlaySound();
             }
+            else if (authorization == "AUTHORIZED") //green
+            {
+                /*
+                pBoxAuthorizationLive.BackgroundImage = (Bitmap)IVISS.Properties.Resources.green_card;
+                pBoxLiveALPRBar.BackColor = Color.FromArgb(121, 246, 152);
+                this.lblLiveAccuracy.BackColor = Color.FromArgb(121, 246, 152);
+                this.lblLiveOCRAccuracy.BackColor = Color.FromArgb(121, 246, 152);
+                */
+
+                lblVisitorClassificationLive.BackColor = Color.FromArgb(0, 204, 79);
+
+                //this.lblVisitorClassification.ForeColor = Color.White;
+                //this.lblOCRAccuracy.ForeColor = Color.White;
+                //this.lblPlayAccuracy.ForeColor = Color.White;
+            }
+            else
+            {
+                /*
+                pBoxAuthorizationLive.BackgroundImage = (Bitmap)IVISS.Properties.Resources.yellow_card;
+                pBoxLiveALPRBar.BackColor = Color.FromArgb(252, 255, 132);
+                this.lblLiveAccuracy.BackColor = Color.FromArgb(252, 255, 132);
+                this.lblLiveOCRAccuracy.BackColor = Color.FromArgb(252, 255, 132);
+                */
+
+                lblVisitorClassificationLive.BackColor = Color.FromArgb(238, 218, 23);
+            }
+
+            if (authorization.Length > 0)
+                lblVisitorClassificationLive.Text = authorization;
+            else
+                lblVisitorClassificationLive.Text = "VISITOR";
+        }
+  
+        private void Main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+            ncd1.ClosePort();
+
+            CloseVideoSourceDriver();
+            CloseVideoSourceScene();
+            CloseVideoSourceLP();
+
+            anprThread.StopThread();
+
+            FormIsClosing(sender, e);
         }
 
         private void btnClickSnapshot_Click(object sender, EventArgs e)
         {
-            btnClickSnapshot.Visible = false;
-            tbDriver.Visible = true;
+            //btnClickSnapshot.Visible = false;
+            //tbDriver.Visible = true;
         }
 
         private void tbDriver_Scroll(object sender, EventArgs e)
         {
-            if (m_TotalFrame_Driver > 0)
+            if (m_TotalFrameDriver > 0)
             {
                 SeekDriver((IntPtr)tbDriver.Value);
             }
@@ -988,11 +1392,11 @@ namespace IVISS
 
         private void vspDriver_Click(object sender, EventArgs e)
         {
-            if (m_TotalFrame_Driver > 0)
+            if (m_TotalFrameDriver > 0)
             {
                 SaveDriver((IntPtr)tbDriver.Value);
 
-                var path = (String.IsNullOrEmpty(m_IVISS_Recording_Path)) ? Global.LAST_FOLDER : m_IVISS_Recording_Path;
+                var path = (String.IsNullOrEmpty(m_IVISSRecordingPath)) ? Global.LAST_FOLDER : m_IVISSRecordingPath;
 
                 System.Threading.Thread.Sleep(200);
 
@@ -1000,6 +1404,8 @@ namespace IVISS
                 {
                     File.Delete(path + "\\frame.ppm");
                 }
+
+                //MessageBox.Show(path);
             }
 
             using (Graphics g = vspDriver.CreateGraphics())
@@ -1010,8 +1416,8 @@ namespace IVISS
                 }
             }
 
-            tbDriver.Visible = false;
-            btnClickSnapshot.Visible = true;
+            //tbDriver.Visible = false;
+            //btnClickSnapshot.Visible = true;
         }
 
         private void dgView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -1019,6 +1425,7 @@ namespace IVISS
             try
             {
                 //dgView.ReadOnly = true;
+                m_IVISSRecordingPath = string.Empty;
 
                 if (e.RowIndex >= 0)
                 {
@@ -1031,20 +1438,38 @@ namespace IVISS
                     string gate = dgView.Rows[e.RowIndex].Cells["Gate"].Value.ToString();
                     string visitorAccess = dgView.Rows[e.RowIndex].Cells["Status"].Value.ToString(); ; //Status
 
-
                     if (path != null && path.Length > 0)
                     {
-                        m_IVISS_Recording_Path = path;
+                        var frm = new frmOverlay();
+                        frm.plate = plate;
+                        frm.plateArab = plateArab;
+                        frm.recordingPath = path;
+                        frm.Show();
+
+                        m_IVISSRecordingPath = path;
+
+                        //MessageBox.Show(path);
                         //m_IVISS_Plate_Number = plate;
                         //m_IVISS_Plate_DateTime = datetime;
 
                         if (Directory.Exists(path))
                         {
+
+                            //******************************* reset FOD buttons *********************************
+                            Task T1 = Task.Run(() =>
+                            {
+                                BeginInvoke((MethodInvoker)delegate
+                                {
+                                    TurnOffConfidenceBtns();
+                                    btnOriginal.BackgroundImage = (Bitmap)IVISS.Properties.Resources.medium_btn_green_pressed;
+                                });
+                            });
+                            //***********************************************************************************
                             SetFilesToOpen(path, plate, plateArab, classification, accuracy, gate, visitorAccess);
                         }
                         else
                         {
-                            MessageBox.Show("Path not found");
+                            MessageBox.Show("Path not found!");
                         }
                     }
                 }
@@ -1055,44 +1480,381 @@ namespace IVISS
 
         private void btnClickSnapshot_Click_1(object sender, EventArgs e)
         {
-            btnClickSnapshot.Visible = false;
-            tbDriver.Visible = true;
+            //btnClickSnapshot.Visible = false;
+            //tbDriver.Visible = true;
         }
 
-        private void vspDriver_NewFrame(object sender, ref Bitmap image)
+        private void button2_Click(object sender, EventArgs e)
+        {
+            btnRecordingOff_Click(null, null);
+        }
+
+        private void picCompositeImage_Click(object sender, EventArgs e)
+        {
+            var frm = new frmViewImage();
+
+            if (!m_FOB)
+            {
+                frm.imgPath = m_IVISSRecordingPath + @"\outPutVer.jpg";
+            }
+            else
+            {
+                frm.imgPath = m_SelectedImage;
+            }
+
+            frm.ShowDialog();
+        }
+
+        private void picOriginalImage_Click(object sender, EventArgs e)
+        {
+            var frm = new frmViewImage();
+            frm.imgPath = m_ComparisonPath + @"\outPutVer.jpg";
+            frm.ShowDialog();
+        }
+
+        private void picDriver_Click(object sender, EventArgs e)
+        {
+            string path = m_IVISSRecordingPath + "\\" + "Driver.bmp";
+            var frm = new frmViewImageFullScreen();
+            frm.imgPath = path;
+            frm.ShowDialog();
+        }
+
+        private void TurnOffConfidenceBtns()
+        {
+            foreach (Button btn in pnlConfidence.Controls.OfType<Button>())
+                if (btn.Tag != null && btn.Tag.ToString() == "confidence")
+                    btn.BackgroundImage = (Bitmap)IVISS.Properties.Resources.medium_btn_green;
+
+            this.tBarBrightness.Value = 20;
+
+            //foreach (Control c in pnlConfidence.Controls)
+            //{
+            //    if (c is Button)
+            //    {
+            //        if (c.Tag != null && c.Tag.ToString() == "confidence")
+            //            c.BackgroundImage = (Bitmap)IVISS.Properties.Resources.medium_btn_green;
+            //    }
+            //}
+        }
+
+        private void btnHigh_Click(object sender, EventArgs e)
+        {
+            Task T1 = Task.Run(() => 
+            {
+                BeginInvoke((MethodInvoker)delegate
+                {
+                    TurnOffConfidenceBtns();
+                    btnHigh.BackgroundImage = (Bitmap)IVISS.Properties.Resources.medium_btn_green_pressed;
+                });
+            });
+
+            m_FOB = true;
+
+            //Task T2 = Task.Run(() =>
+            //{
+                m_SelectedImage = GetFilePath() + "\\_high.jpg";
+
+                if (File.Exists(m_SelectedImage))
+                {
+                    using (FileStream fs = new FileStream(m_SelectedImage, FileMode.Open))
+                    {
+                        //BeginInvoke((MethodInvoker)delegate
+                        //{
+                            pBoxComparison.Image = Image.FromStream(fs);
+                        //});
+
+                        fs.Close();
+                    }
+                }
+                //else
+                //{
+                //    BeginInvoke((MethodInvoker)delegate
+                //    {
+                //        pBoxComparison.BackgroundImage = null;
+                //    });
+                //}
+            //});
+        }
+
+        private void btnMedium_Click(object sender, EventArgs e)
+        {
+            Task T1 = Task.Run(() =>
+            {
+                BeginInvoke((MethodInvoker)delegate
+                {
+                    TurnOffConfidenceBtns();
+                    btnMedium.BackgroundImage = (Bitmap)IVISS.Properties.Resources.medium_btn_green_pressed;
+                });
+            });
+
+            m_FOB = true;
+
+            //Task T2 = Task.Run(() =>
+            //{
+                m_SelectedImage = GetFilePath() + "\\_medium.jpg";
+
+                if (File.Exists(m_SelectedImage))
+                {
+                    using (FileStream fs = new FileStream(m_SelectedImage, FileMode.Open))
+                    {
+                        //BeginInvoke((MethodInvoker)delegate
+                        //{
+                            pBoxComparison.Image = Image.FromStream(fs);
+                        //});
+
+                        fs.Close();
+                    }
+                }
+                //else
+                //{
+                //    BeginInvoke((MethodInvoker)delegate
+                //    {
+                //        pBoxComparison.BackgroundImage = null;
+                //    });
+                //}
+            //});
+        }
+
+        private void btnLow_Click(object sender, EventArgs e)
+        {
+            Task T1 = Task.Run(() =>
+            {
+                BeginInvoke((MethodInvoker)delegate
+                {
+                    TurnOffConfidenceBtns();
+                    btnLow.BackgroundImage = (Bitmap)IVISS.Properties.Resources.medium_btn_green_pressed;
+                });
+            });
+
+            m_FOB = true;
+
+            //Task T2 = Task.Run(() =>
+            //{
+                m_SelectedImage = GetFilePath() + "\\_low.jpg";
+
+                if (File.Exists(m_SelectedImage))
+                {
+                    using (FileStream fs = new FileStream(m_SelectedImage, FileMode.Open))
+                    {
+                        //BeginInvoke((MethodInvoker)delegate
+                        //{
+                            pBoxComparison.Image = Image.FromStream(fs);
+                        //});
+
+                        fs.Close();
+                    }
+                }
+                //else
+                //{
+                //    BeginInvoke((MethodInvoker)delegate
+                //    {
+                //        pBoxComparison.BackgroundImage = null;
+                //    });
+                //}
+            //});
+        }
+
+        private void pBoxComparison_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnOriginal_Click(object sender, EventArgs e)
+        {
+            Task T1 = Task.Run(() =>
+            {
+                BeginInvoke((MethodInvoker)delegate
+                {
+                    TurnOffConfidenceBtns();
+                    btnOriginal.BackgroundImage = (Bitmap)IVISS.Properties.Resources.medium_btn_green_pressed;
+                });
+            });
+
+            m_FOB = false;
+
+            //Task T2 = Task.Run(() =>
+            //{
+                m_SelectedImage = GetFilePath() + "\\outPutVer.jpg";
+
+                if (File.Exists(m_SelectedImage))
+                {
+                    using (FileStream fs = new FileStream(m_SelectedImage, FileMode.Open))
+                    {
+                        //BeginInvoke((MethodInvoker)delegate
+                        //{
+                            pBoxComparison.Image = Image.FromStream(fs);
+                        //});
+
+                        fs.Close();
+                    }
+                }
+                //else
+                //{
+                //    BeginInvoke((MethodInvoker)delegate
+                //    {
+                //        pBoxComparison.BackgroundImage = null;
+                //    });
+                //}
+            //});
+        }
+
+        private void btnAuto_Click(object sender, EventArgs e)
+        {
+            if (!m_Auto)
+            {
+                btnAuto.BackgroundImage = (Bitmap)IVISS.Properties.Resources.auto;
+            }
+            else
+            {
+                btnAuto.BackgroundImage = (Bitmap)IVISS.Properties.Resources.auto_grey;
+            }
+
+            m_Auto = !m_Auto;
+
+            presenter.SetRecordingMode();
+            //ShowStatus();
+        }
+
+        private void tmCompositeImage_Tick(object sender, EventArgs e)
         {
             try
             {
-                if (m_Recording)
+                if (File.Exists(this.m_DestinationDir + @"\outPutVer.jpg"))
                 {
+                    pBoxComparison.SizeMode = PictureBoxSizeMode.StretchImage;
 
-                    //var frame = eventArgs.Frame;   // That's a Bitmap
-                    var now = DateTime.Now;
-
-                    if (this.firstRecordedFrameTimeStamp == DateTime.MinValue)
-                        this.firstRecordedFrameTimeStamp = now;
-
-                    if (this.nextWrittenFrameTimeStamp < now)   // this.nextWrittenFrameTimeStamp is initialized with DateTime.MinValue
+                    //pBoxComparison.Image = Image.FromFile(this.m_DestinationDir + @"\outPutVer.jpg");
+                    using (FileStream fs = new FileStream(this.m_DestinationDir + @"\outPutVer.jpg", FileMode.Open))
                     {
-                        var elapsed = now - this.firstRecordedFrameTimeStamp;
-
-                        //this.videoWriter.WriteVideoFrame(frame.Resize(720, 480), elapsed);
-
-                        writer.WriteVideoFrame(image, elapsed);
-                        this.nextWrittenFrameTimeStamp = now.AddMilliseconds(1000 / 30);
+                        imgCompositeImage = Image.FromStream(fs);
+                        pBoxComparison.Image = imgCompositeImage;
+                        fs.Close();
                     }
 
-                    //writer.WriteVideoFrame(image);
-
+                    tmCompositeImage.Stop();
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Global.AppendString("videoSourcePlayer_NewFrame: " + ex.ToString());
-                //Console.Write(ex.ToString());
+
             }
         }
 
+        private void button3_Click(object sender, EventArgs e)
+        {
+            //LoadCompositeImage();
+        }
+
+        public static Bitmap AdjustBrightness(Bitmap Image, int Value)
+        {
+            if (Image != null)
+            {
+                Bitmap TempBitmap = Image;
+
+                Bitmap NewBitmap = new Bitmap(TempBitmap.Width, TempBitmap.Height);
+
+                Graphics NewGraphics = Graphics.FromImage(NewBitmap);
+
+                float FinalValue = (float)Value / 255.0f;
+
+                float[][] FloatColorMatrix ={
+
+                    new float[] {1, 0, 0, 0, 0},
+
+                    new float[] {0, 1, 0, 0, 0},
+
+                    new float[] {0, 0, 1, 0, 0},
+
+                    new float[] {0, 0, 0, 1, 0},
+
+                    new float[] {FinalValue, FinalValue, FinalValue, 1, 1}
+                };
+
+                ColorMatrix NewColorMatrix = new ColorMatrix(FloatColorMatrix);
+
+                ImageAttributes Attributes = new ImageAttributes();
+
+                Attributes.SetColorMatrix(NewColorMatrix);
+
+                NewGraphics.DrawImage(TempBitmap, new Rectangle(0, 0, TempBitmap.Width, TempBitmap.Height), 0, 0, TempBitmap.Width, TempBitmap.Height, GraphicsUnit.Pixel, Attributes);
+
+                Attributes.Dispose();
+
+                NewGraphics.Dispose();
+
+                return NewBitmap;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private void tBarBrightness_Scroll(object sender, EventArgs e)
+        {
+            pBoxComparison.Image = AdjustBrightness((Bitmap)imgCompositeImage, tBarBrightness.Value);
+        }
+
+        private void dgView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void picLicensePlate_Click(object sender, EventArgs e)
+        {
+            string path = m_IVISSRecordingPath + "\\" + "LpNum.bmp";
+            var frm = new frmViewImageFullScreen();
+            frm.imgPath = path;
+            frm.ShowDialog();
+        }
+
+        private void btnAFOD_Click(object sender, EventArgs e)
+        {
+            var defImage = presenter.SelectImageComparison().Replace(@"\",@"\\") + @"\\";
+            var curImage = m_IVISSRecordingPath.Replace(@"\", @"\\") + @"\\";
+
+            //MessageBox.Show("\"" + defImage + "\"" + " " + "\"" + "outPutVer.jpg" + "\"" + " " + "\"" + curImage + "\"" + " " + "\"" + "outPutVer.jpg" + "\"");
+
+            Task tFOD = Task.Run(() =>
+            {
+                ProcessStartInfo _processStartInfo = new ProcessStartInfo();
+                _processStartInfo.WorkingDirectory = Application.StartupPath + @"\FOD\";
+                _processStartInfo.FileName = @"ForeignObjectDetection.exe";
+                _processStartInfo.UseShellExecute = true;
+                _processStartInfo.CreateNoWindow = true;
+                _processStartInfo.Arguments = "\"" + defImage + "\"" + " " + "outPutVer.jpg" + " " + "\"" + curImage + "\"" + " " + "outPutVer.jpg"; //"C:\\IVISSTemp\\"; //"\"" + destination_dir + "\"";
+                _processStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                _processStartInfo.CreateNoWindow = true;
+
+                Process myProcess = Process.Start(_processStartInfo);
+            });
+        }
+
+        private void lblVisitorClassificationLive_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            btnRecordingOff_Click(null, null);
+        }
+
+        private string GetFilePath()
+        {
+            return (String.IsNullOrEmpty(m_IVISSRecordingPath)) ? "C:\\IVISSTemp" : m_IVISSRecordingPath;
+        }
+
+        public void RunFODAsync(string caseimage, string referenceimage,bool IsManual)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LoadImageComparisonWithFOD(string destDir)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public static class Extensions

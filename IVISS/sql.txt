@@ -1,0 +1,446 @@
+﻿CREATE DATABASE [IVISS_Client]
+COLLATE SQL_Latin1_General_CP1_CI_AS
+GO
+USE [IVISS_Client]
+GO
+/****** Object:  Table [dbo].[Detail]    Script Date: 10/2/2020 5:44:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Detail](
+	[visitor_id] [int] NOT NULL,
+	[visitor_vehicle_license_plate] [int] NOT NULL,
+	[visitor_entry_date] [datetime] NOT NULL,
+	[visitor_entry_time] [datetime] NOT NULL,
+	[visitor_entry_gate] [int] NOT NULL,
+	[visitor_exit_date] [smalldatetime] NULL,
+	[visitor_exit_time] [smalldatetime] NULL,
+	[visitor_exit_gate] [int] NULL,
+	[visitor_license_prefix] [nvarchar](2) NULL,
+	[visitor_license_number] [nvarchar](20) NULL,
+	[visitor_license_number_arabic] [nvarchar](50) NULL,
+	[visitor_license_region] [nvarchar](50) NULL,
+	[visitor_license_country] [nvarchar](50) NULL,
+	[visitor_license_back_color] [nvarchar](50) NULL,
+	[visitor_license_fore_color] [nvarchar](50) NULL,
+	[visitor_license_type] [nvarchar](20) NULL,
+	[visitor_license_accuracy] [int] NULL,
+	[visitor_guard_id] [nvarchar](20) NULL,
+	[visitor_alpr_recording] [nvarchar](200) NULL,
+	[visitor_driver_recording] [nvarchar](200) NULL,
+	[visitor_scene_recording] [nvarchar](200) NULL,
+	[visitor_iviss_recording] [nvarchar](200) NULL,
+	[visitor_access_status] [nvarchar](10) NULL,
+	[visitor_access_gate] [nvarchar](50) NULL,
+	[uploaded] [tinyint] NULL,
+	[visitor_authorization] [nvarchar](50) NULL,
+	[gate_no] [tinyint] NULL,
+	[deleted] [tinyint] NULL,
+	[is_default] [tinyint] NULL,
+ CONSTRAINT [PK_Detail_1] PRIMARY KEY CLUSTERED 
+(
+	[visitor_vehicle_license_plate] ASC,
+	[visitor_entry_date] ASC,
+	[visitor_entry_time] ASC,
+	[visitor_entry_gate] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[vwCarsRecord]    Script Date: 10/2/2020 5:44:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[vwCarsRecord]
+AS
+SELECT        visitor_entry_date, visitor_entry_time, visitor_license_number, visitor_license_number_arabic, visitor_license_region, visitor_license_country, visitor_license_back_color, visitor_license_fore_color, 
+                         visitor_license_type, visitor_license_accuracy, visitor_access_gate, visitor_access_status, visitor_license_prefix, visitor_exit_gate, visitor_exit_time, visitor_exit_date, visitor_entry_gate
+FROM            dbo.Detail
+GO
+/****** Object:  Table [dbo].[Admin]    Script Date: 10/2/2020 5:44:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Admin](
+	[admin_id] [nvarchar](20) NOT NULL,
+	[admin_password] [nvarchar](50) NULL,
+	[admin_first] [nvarchar](50) NULL,
+	[admin_middle] [nvarchar](50) NULL,
+	[admin_last] [nvarchar](50) NULL,
+	[admin_type] [nvarchar](50) NULL,
+	[admin_phone] [nvarchar](50) NULL,
+	[gate_no] [tinyint] NULL,
+	[deleted] [tinyint] NULL,
+	[date_added] [datetime] NULL,
+ CONSTRAINT [PK_Admin] PRIMARY KEY CLUSTERED 
+(
+	[admin_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Camera]    Script Date: 10/2/2020 5:44:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Camera](
+	[camera_id] [int] IDENTITY(1001,1) NOT NULL,
+	[camera_role] [nvarchar](50) NULL,
+	[gate_id] [int] NULL,
+ CONSTRAINT [PK_Camera] PRIMARY KEY CLUSTERED 
+(
+	[camera_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Facility]    Script Date: 10/2/2020 5:44:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Facility](
+	[facility_id] [int] IDENTITY(1001,1) NOT NULL,
+	[facility_name] [nvarchar](50) NULL,
+	[facility_city] [nvarchar](50) NULL,
+	[facility_region] [nvarchar](50) NULL,
+	[facility_country] [nvarchar](50) NULL,
+ CONSTRAINT [PK_Facility] PRIMARY KEY CLUSTERED 
+(
+	[facility_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Gate]    Script Date: 10/2/2020 5:44:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Gate](
+	[gate_id] [int] IDENTITY(1001,1) NOT NULL,
+	[gate_name] [nvarchar](50) NULL,
+	[gate_ip] [nvarchar](50) NULL,
+	[gate_port] [nvarchar](10) NULL,
+	[gate_number] [int] NULL,
+ CONSTRAINT [PK_Gates] PRIMARY KEY CLUSTERED 
+(
+	[gate_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Guard]    Script Date: 10/2/2020 5:44:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Guard](
+	[guard_id] [nvarchar](20) NOT NULL,
+	[guard_first] [nvarchar](50) NULL,
+	[guard_middle] [nvarchar](50) NULL,
+	[guard_last] [nvarchar](50) NULL,
+	[guard_password] [nvarchar](50) NULL,
+	[guard_permission] [nvarchar](20) NULL,
+	[guard_organization] [int] NULL,
+	[guard_facility] [int] NULL,
+	[guard_address] [nvarchar](100) NULL,
+	[guard_city] [nvarchar](50) NULL,
+	[guard_region] [nvarchar](50) NULL,
+	[guard_country] [nvarchar](50) NULL,
+	[guard_phone_1] [nvarchar](20) NULL,
+	[guard_phone_2] [nvarchar](20) NULL,
+	[guard_email] [nvarchar](100) NULL,
+	[guard_last_login] [timestamp] NULL,
+	[guard_manager_id] [nvarchar](20) NULL,
+	[guard_last_password_change] [smalldatetime] NULL,
+	[gate_no] [tinyint] NULL,
+	[deleted] [tinyint] NULL,
+	[date_added] [datetime] NULL,
+ CONSTRAINT [PK_User] PRIMARY KEY CLUSTERED 
+(
+	[guard_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Organization]    Script Date: 10/2/2020 5:44:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Organization](
+	[organization_id] [int] IDENTITY(1001,1) NOT NULL,
+	[organization_name] [nvarchar](50) NULL,
+ CONSTRAINT [PK_Organization] PRIMARY KEY CLUSTERED 
+(
+	[organization_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[OrganizationFacility]    Script Date: 10/2/2020 5:44:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[OrganizationFacility](
+	[facility_id] [int] NOT NULL,
+	[organization_id] [int] NOT NULL,
+ CONSTRAINT [PK_OrganizationFacility] PRIMARY KEY CLUSTERED 
+(
+	[facility_id] ASC,
+	[organization_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SystemSettings]    Script Date: 10/2/2020 5:44:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SystemSettings](
+	[Id] [int] NOT NULL,
+	[PortNo] [varchar](10) NULL,
+	[AirWash] [varchar](10) NULL,
+	[Barrier] [varchar](10) NULL,
+	[Lights] [varchar](10) NULL,
+	[Cameras] [varchar](10) NULL,
+	[Relay1] [varchar](50) NULL,
+	[Relay2] [varchar](50) NULL,
+	[Relay3] [varchar](50) NULL,
+	[Relay4] [varchar](50) NULL,
+	[Relay1Arab] [nvarchar](50) NULL,
+	[Relay2Arab] [nvarchar](50) NULL,
+	[Relay3Arab] [nvarchar](50) NULL,
+	[Relay4Arab] [nvarchar](50) NULL,
+	[DriverCamIP] [varchar](20) NULL,
+	[LicenseCamIP] [varchar](20) NULL,
+	[SceneCamIP] [varchar](20) NULL,
+	[DriverCamPassword] [varchar](20) NULL,
+	[SceneCamPassword] [varchar](20) NULL,
+	[Relay1Port] [varchar](10) NULL,
+	[Relay2Port] [varchar](10) NULL,
+	[Relay3Port] [varchar](10) NULL,
+	[Relay4Port] [varchar](10) NULL,
+	[ALPREntryLoop] [bit] NULL,
+	[ALPRExitLoop] [bit] NULL,
+	[RetentionDays] [int] NULL,
+	[ComPort] [int] NULL,
+	[ExitDriverCamIP] [varchar](20) NULL,
+	[ExitLicenseCamIP] [varchar](20) NULL,
+	[DriverRecTimeout] [int] NULL,
+	[gate_no] [tinyint] NULL,
+	[IPAddress] [varchar](50) NULL,
+	[ListenPort] [nvarchar](10) NULL,
+	[LicenseNo] [varchar](50) NULL,
+ CONSTRAINT [PK_SystemSettings] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Vehicle]    Script Date: 10/2/2020 5:44:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Vehicle](
+	[vehicle_license_plate] [int] IDENTITY(1001,1) NOT NULL,
+	[vehicle_make] [nvarchar](50) NOT NULL,
+	[vehicle_year] [int] NOT NULL,
+	[vehicle_model] [nvarchar](50) NOT NULL,
+	[vehicle_color] [nvarchar](50) NULL,
+	[vehicle_type] [nvarchar](50) NULL,
+ CONSTRAINT [PK_Vehicle] PRIMARY KEY CLUSTERED 
+(
+	[vehicle_license_plate] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Visitor]    Script Date: 10/2/2020 5:44:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Visitor](
+	[visitor_id] [int] IDENTITY(1001,1) NOT NULL,
+	[visitor_license_plate] [nvarchar](50) NULL,
+	[visitor_license_plate_arabic] [nvarchar](50) NULL,
+	[visitor_classification] [nchar](10) NULL,
+	[visitor_authorization] [nchar](10) NULL,
+	[visitor_first] [nvarchar](50) NULL,
+	[visitor_middle] [nvarchar](50) NULL,
+	[visitor_last] [nvarchar](50) NULL,
+	[visitor_address] [nvarchar](100) NULL,
+	[visitor_city] [nvarchar](50) NULL,
+	[visitor_region] [nvarchar](50) NULL,
+	[visitor_country] [nvarchar](50) NULL,
+	[visitor_phone_1] [nvarchar](20) NULL,
+	[visitor_phone_2] [nvarchar](20) NULL,
+	[visitor_email] [nvarchar](100) NULL,
+	[visitor_image] [nvarchar](200) NULL,
+	[visitor_manager] [int] NULL,
+	[visitor_organization] [int] NULL,
+	[visitor_facility] [int] NULL,
+	[uploaded] [tinyint] NULL,
+ CONSTRAINT [PK_Visitor] PRIMARY KEY CLUSTERED 
+(
+	[visitor_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+INSERT [dbo].[Admin] ([admin_id], [admin_password], [admin_first], [admin_middle], [admin_last], [admin_type], [admin_phone], [gate_no], [deleted], [date_added]) VALUES (N'admin', N'b+sHFKYtVd0b772q/0Vuhw==', NULL, NULL, NULL, N'Admin', NULL, NULL, NULL, NULL)
+GO
+INSERT [dbo].[Admin] ([admin_id], [admin_password], [admin_first], [admin_middle], [admin_last], [admin_type], [admin_phone], [gate_no], [deleted], [date_added]) VALUES (N'manager', N'b+sHFKYtVd0b772q/0Vuhw==', N'manager', N'', N'manager', N'Manager', N'', NULL, NULL, NULL)
+GO
+INSERT [dbo].[Admin] ([admin_id], [admin_password], [admin_first], [admin_middle], [admin_last], [admin_type], [admin_phone], [gate_no], [deleted], [date_added]) VALUES (N'test', N'b+sHFKYtVd0b772q/0Vuhw==', N'test', N'test', N'tesy', N'Manager', N'test', NULL, NULL, NULL)
+GO
+INSERT [dbo].[Admin] ([admin_id], [admin_password], [admin_first], [admin_middle], [admin_last], [admin_type], [admin_phone], [gate_no], [deleted], [date_added]) VALUES (N'test2', N'b+sHFKYtVd0b772q/0Vuhw==', N'test2', N'', N'test2', N'Manager', N'test2', NULL, NULL, NULL)
+GO
+GO
+SET IDENTITY_INSERT [dbo].[Facility] ON 
+GO
+INSERT [dbo].[Facility] ([facility_id], [facility_name], [facility_city], [facility_region], [facility_country]) VALUES (1, N'Hilton', N'Riyad', N'VA', N'KSA')
+GO
+SET IDENTITY_INSERT [dbo].[Facility] OFF
+GO
+SET IDENTITY_INSERT [dbo].[Gate] ON 
+GO
+INSERT [dbo].[Gate] ([gate_id], [gate_name], [gate_ip], [gate_port], [gate_number]) VALUES (1, N'Gate 1', N'192.168.0.123', N'5900', 1)
+GO
+INSERT [dbo].[Gate] ([gate_id], [gate_name], [gate_ip], [gate_port], [gate_number]) VALUES (2, N'Gate 2', N'192.168.0.123', N'5900', 2)
+GO
+INSERT [dbo].[Gate] ([gate_id], [gate_name], [gate_ip], [gate_port], [gate_number]) VALUES (3, N'Gate 3', N'192.168.0.123', N'5900', 3)
+GO
+INSERT [dbo].[Gate] ([gate_id], [gate_name], [gate_ip], [gate_port], [gate_number]) VALUES (4, N'Gate 4', N'192.168.0.121', N'5900', 4)
+GO
+INSERT [dbo].[Gate] ([gate_id], [gate_name], [gate_ip], [gate_port], [gate_number]) VALUES (5, N'Gate 5', N'192.168.0.123', N'5900', 5)
+GO
+INSERT [dbo].[Gate] ([gate_id], [gate_name], [gate_ip], [gate_port], [gate_number]) VALUES (6, N'Gate 6', N'192.168.0.123', N'5900', 6)
+GO
+INSERT [dbo].[Gate] ([gate_id], [gate_name], [gate_ip], [gate_port], [gate_number]) VALUES (7, N'Gate 7', N'192.168.0.123', N'5900', 7)
+GO
+INSERT [dbo].[Gate] ([gate_id], [gate_name], [gate_ip], [gate_port], [gate_number]) VALUES (8, N'Gate 8', N'192.168.0.123', N'5900', 8)
+GO
+INSERT [dbo].[Gate] ([gate_id], [gate_name], [gate_ip], [gate_port], [gate_number]) VALUES (9, N'Gate 9', N'192.168.0.123', N'5900', 9)
+GO
+SET IDENTITY_INSERT [dbo].[Gate] OFF
+GO
+INSERT [dbo].[Guard] ([guard_id], [guard_first], [guard_middle], [guard_last], [guard_password], [guard_permission], [guard_organization], [guard_facility], [guard_address], [guard_city], [guard_region], [guard_country], [guard_phone_1], [guard_phone_2], [guard_email], [guard_manager_id], [guard_last_password_change], [gate_no], [deleted], [date_added]) VALUES (N'guard', N'guard 1st name', N'No middle', N'guard last', N'VUl9GVkHLP5g+DNOBEr+Pw==', NULL, NULL, NULL, NULL, NULL, NULL, NULL, N'00123456789', NULL, NULL, NULL, NULL, NULL, 1, CAST(N'2016-07-25T22:00:56.487' AS DateTime))
+GO
+INSERT [dbo].[Guard] ([guard_id], [guard_first], [guard_middle], [guard_last], [guard_password], [guard_permission], [guard_organization], [guard_facility], [guard_address], [guard_city], [guard_region], [guard_country], [guard_phone_1], [guard_phone_2], [guard_email], [guard_manager_id], [guard_last_password_change], [gate_no], [deleted], [date_added]) VALUES (N'hammad', N'hammad.haq', N'', N'haq', N'UwACf/b4UgLX3WNWgIOUyg==', NULL, NULL, NULL, NULL, NULL, NULL, NULL, N'+123456789', NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+GO
+INSERT [dbo].[SystemSettings] ([Id], [PortNo], [AirWash], [Barrier], [Lights], [Cameras], [Relay1], [Relay2], [Relay3], [Relay4], [Relay1Arab], [Relay2Arab], [Relay3Arab], [Relay4Arab], [DriverCamIP], [LicenseCamIP], [SceneCamIP], [DriverCamPassword], [SceneCamPassword], [Relay1Port], [Relay2Port], [Relay3Port], [Relay4Port], [ALPREntryLoop], [ALPRExitLoop], [RetentionDays], [ComPort], [ExitDriverCamIP], [ExitLicenseCamIP], [DriverRecTimeout], [gate_no], [IPAddress], [ListenPort], [LicenseNo]) VALUES (1, N'', N'1', N'2', N'3', N'4', N'ACCESS ARM', N'TIRE SPIKES', N'BOLLARD', N'ROAD BLOCKER', N'ذراع الوصول', N'مسامير الاطارات', N'مربط الحبال', N'مانع الطريق', N'192.168.1.145', N'192.168.1.199', N'192.168.1.145', N'T@5c6314', N'T@5c6314', N'1', N'2', N'3', N'4', 1, 0, 60, 0, N'', N'', 25, 1, N'192.168.1.124', N'2101', N'18261064')
+GO
+SET IDENTITY_INSERT [dbo].[Vehicle] ON 
+GO
+INSERT [dbo].[Vehicle] ([vehicle_license_plate], [vehicle_make], [vehicle_year], [vehicle_model], [vehicle_color], [vehicle_type]) VALUES (1, N'Lexus', 2005, N'ES330', NULL, NULL)
+GO
+SET IDENTITY_INSERT [dbo].[Vehicle] OFF
+GO
+SET IDENTITY_INSERT [dbo].[Visitor] ON 
+GO
+INSERT [dbo].[Visitor] ([visitor_id], [visitor_license_plate], [visitor_license_plate_arabic], [visitor_classification], [visitor_authorization], [visitor_first], [visitor_middle], [visitor_last], [visitor_address], [visitor_city], [visitor_region], [visitor_country], [visitor_phone_1], [visitor_phone_2], [visitor_email], [visitor_image], [visitor_manager], [visitor_organization], [visitor_facility], [uploaded]) VALUES (1001, N'', N'', N'VISITOR   ', N'AUTHORIZED', N'', NULL, N'', N'', N'', N'', N'', N'', N'', N'', NULL, NULL, NULL, NULL, 1)
+GO
+INSERT [dbo].[Visitor] ([visitor_id], [visitor_license_plate], [visitor_license_plate_arabic], [visitor_classification], [visitor_authorization], [visitor_first], [visitor_middle], [visitor_last], [visitor_address], [visitor_city], [visitor_region], [visitor_country], [visitor_phone_1], [visitor_phone_2], [visitor_email], [visitor_image], [visitor_manager], [visitor_organization], [visitor_facility], [uploaded]) VALUES (1020, N'123', N'', N'EMPLOYEE  ', N'PROHIBITED', N'Test First Name', N'midd', N'Test Last Name', N'Address', N'City', N'Region', N'Country', N'Phone no.', N'Mobile no.', N'test@gmail.com', N'Pictures\288148823.jpg', NULL, NULL, NULL, 0)
+GO
+INSERT [dbo].[Visitor] ([visitor_id], [visitor_license_plate], [visitor_license_plate_arabic], [visitor_classification], [visitor_authorization], [visitor_first], [visitor_middle], [visitor_last], [visitor_address], [visitor_city], [visitor_region], [visitor_country], [visitor_phone_1], [visitor_phone_2], [visitor_email], [visitor_image], [visitor_manager], [visitor_organization], [visitor_facility], [uploaded]) VALUES (1023, N'dfdfd', N'و‎ز‎ظ‎ذ‎ ‎‎١‎‎٣‎٢‎٣‎', N'EMPLOYEE  ', N'AUTHORIZED', N'Zeeshans', N'', N'Zahids', N'', N'', N'', N'', N'', N'', N'', N'Pictures\-942198701.jpg', NULL, NULL, NULL, 0)
+GO
+INSERT [dbo].[Visitor] ([visitor_id], [visitor_license_plate], [visitor_license_plate_arabic], [visitor_classification], [visitor_authorization], [visitor_first], [visitor_middle], [visitor_last], [visitor_address], [visitor_city], [visitor_region], [visitor_country], [visitor_phone_1], [visitor_phone_2], [visitor_email], [visitor_image], [visitor_manager], [visitor_organization], [visitor_facility], [uploaded]) VALUES (1024, N'123', N'ث‎ص‎ض‎', N'VISITOR   ', N'AUTHORIZED', N'Waqar', N'A', N'Khan', N'Wapda Town', N'Lahore', N'Punjab', N'Pakistan', N'0123456789', N'987654321', N'waqar@gmail.com', N'Pictures\1684807787.jpg', NULL, NULL, NULL, 0)
+GO
+SET IDENTITY_INSERT [dbo].[Visitor] OFF
+GO
+SET ANSI_PADDING ON
+GO
+/****** Object:  Index [IX_visitor_last_visitor_first]    Script Date: 10/2/2020 5:44:14 AM ******/
+CREATE UNIQUE NONCLUSTERED INDEX [IX_visitor_last_visitor_first] ON [dbo].[Visitor]
+(
+	[visitor_last] ASC,
+	[visitor_first] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = ON, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[Detail] ADD  CONSTRAINT [DF_Detail_uploaded]  DEFAULT ((0)) FOR [uploaded]
+GO
+ALTER TABLE [dbo].[Detail] ADD  CONSTRAINT [DF_Detail_is_default]  DEFAULT ((0)) FOR [is_default]
+GO
+ALTER TABLE [dbo].[Guard] ADD  CONSTRAINT [DF_Guard_deleted]  DEFAULT ((0)) FOR [deleted]
+GO
+ALTER TABLE [dbo].[Camera]  WITH CHECK ADD  CONSTRAINT [FK_Cameras_Gates] FOREIGN KEY([gate_id])
+REFERENCES [dbo].[Gate] ([gate_id])
+GO
+ALTER TABLE [dbo].[Camera] CHECK CONSTRAINT [FK_Cameras_Gates]
+GO
+ALTER TABLE [dbo].[Guard]  WITH CHECK ADD  CONSTRAINT [FK_Guard_Facility] FOREIGN KEY([guard_facility])
+REFERENCES [dbo].[Facility] ([facility_id])
+GO
+ALTER TABLE [dbo].[Guard] CHECK CONSTRAINT [FK_Guard_Facility]
+GO
+ALTER TABLE [dbo].[Guard]  WITH CHECK ADD  CONSTRAINT [FK_Guard_Guard] FOREIGN KEY([guard_manager_id])
+REFERENCES [dbo].[Guard] ([guard_id])
+GO
+ALTER TABLE [dbo].[Guard] CHECK CONSTRAINT [FK_Guard_Guard]
+GO
+ALTER TABLE [dbo].[Guard]  WITH CHECK ADD  CONSTRAINT [FK_Guard_Organization] FOREIGN KEY([guard_organization])
+REFERENCES [dbo].[Organization] ([organization_id])
+GO
+ALTER TABLE [dbo].[Guard] CHECK CONSTRAINT [FK_Guard_Organization]
+GO
+ALTER TABLE [dbo].[OrganizationFacility]  WITH CHECK ADD  CONSTRAINT [FK_OrganizationFacility_Facility] FOREIGN KEY([facility_id])
+REFERENCES [dbo].[Facility] ([facility_id])
+GO
+ALTER TABLE [dbo].[OrganizationFacility] CHECK CONSTRAINT [FK_OrganizationFacility_Facility]
+GO
+ALTER TABLE [dbo].[OrganizationFacility]  WITH CHECK ADD  CONSTRAINT [FK_OrganizationFacility_Organization] FOREIGN KEY([organization_id])
+REFERENCES [dbo].[Organization] ([organization_id])
+GO
+ALTER TABLE [dbo].[OrganizationFacility] CHECK CONSTRAINT [FK_OrganizationFacility_Organization]
+GO
+ALTER TABLE [dbo].[Visitor]  WITH CHECK ADD  CONSTRAINT [FK_Visitor_Facility] FOREIGN KEY([visitor_facility])
+REFERENCES [dbo].[Facility] ([facility_id])
+GO
+ALTER TABLE [dbo].[Visitor] CHECK CONSTRAINT [FK_Visitor_Facility]
+GO
+ALTER TABLE [dbo].[Visitor]  WITH CHECK ADD  CONSTRAINT [FK_Visitor_Organization] FOREIGN KEY([visitor_organization])
+REFERENCES [dbo].[Organization] ([organization_id])
+GO
+ALTER TABLE [dbo].[Visitor] CHECK CONSTRAINT [FK_Visitor_Organization]
+GO
+ALTER TABLE [dbo].[Visitor]  WITH CHECK ADD  CONSTRAINT [FK_Visitor_Visitor] FOREIGN KEY([visitor_manager])
+REFERENCES [dbo].[Visitor] ([visitor_id])
+GO
+ALTER TABLE [dbo].[Visitor] CHECK CONSTRAINT [FK_Visitor_Visitor]
+GO
+ALTER TABLE [dbo].[Vehicle]  WITH CHECK ADD  CONSTRAINT [CK_Vehicle] CHECK  (([vehicle_year] like '[0-9][0-9][0-9][0-9]'))
+GO
+ALTER TABLE [dbo].[Vehicle] CHECK CONSTRAINT [CK_Vehicle]
+GO
+ALTER TABLE [dbo].[Visitor]  WITH CHECK ADD  CONSTRAINT [CK_Visitor_Classification] CHECK  (([visitor_classification]='Resident' OR [visitor_classification]='Visitor' OR [visitor_classification]='Employee'))
+GO
+ALTER TABLE [dbo].[Visitor] CHECK CONSTRAINT [CK_Visitor_Classification]
+GO
+/****** Object:  StoredProcedure [dbo].[spSummary]    Script Date: 10/2/2020 5:44:14 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[spSummary] 
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    SELECT (SELECT count(*) from CarsRecord WHERE status = 'B' AND GateNo = t.GateNo)  AS Employee, 
+			(SELECT count(*) from CarsRecord WHERE status = 'G' AND GateNo = t.GateNo)  AS Visitor, 
+			(SELECT count(*) from CarsRecord WHERE status = 'R' AND GateNo = t.GateNo)  AS Prohibited, GateNo 
+			FROM CarsRecord t 
+			GROUP BY t.GateNo
+
+END
+GO
+
+ALTER DATABASE [IVISS_Client] SET  READ_WRITE 
+GO

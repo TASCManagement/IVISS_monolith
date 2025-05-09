@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MaterialSkin.Controls;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -16,10 +17,10 @@ namespace IVISS.View
         event EventHandler RdoManager;
         event EventHandler RdoGuard;
 
-        event EventHandler FormLoad;
+        event EventHandler FormLoadUser;
 
         void SetGridSource(DataTable dt);
-        void Reset();
+        void ResetUser();
 
         string firstName { set; get; }
         string middleName { set; get; }
@@ -33,5 +34,9 @@ namespace IVISS.View
         bool guardChecked { set; get; }
 
         string saveBtnCaption { set; get; }
+
+        bool userManagemenAlreadyLoaded { set; get; }
+
+        MaterialForm userManagementForm { get; set; }
     }
 }

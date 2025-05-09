@@ -16,8 +16,16 @@ namespace IVISS.Presenter
     class MainPresenter
     {
         IMain view;
-        MainModel model;
+       public MainModel model;
+
         Camera_Recorder recorder;
+
+      
+
+        // Todo 9: Read "Camera Serial Number" from file
+       // String cameraSerial = "18261064";
+
+        //recorder.eventCallback += new Camera_Recorder.MyDelegate(recordingDone);
 
         public MainPresenter(IMain mainView)
         {
@@ -30,27 +38,176 @@ namespace IVISS.Presenter
             view.BtnRecordingOn += view_BtnRecordingOn;
             view.BtnRecordingOff += view_BtnRecordingOff;
             view.BtnSettings += view_BtnSettings;
-           
+            view.FormLoaded += View_FormLoaded;
+            view.FormIsClosing += View_FormClosing;
+            
+            // recording related code
+            // TODO:
 
-            Task T = Task.Factory.StartNew(() => {
+            try
+            {
+                //recorder = new Camera_Recorder();
+
+                //////recorder.eventCallback += Camera_Recorder.MyDelegate(recordingDone);
+                //////recorder.eventCallback += Recorder_eventCallback;
+
+              //  recorder.eventCallbackRecordingStart += new Camera_Recorder.MyDelegate(recordingStarted);
+               // recorder.eventCallbackRecordingEnd += new Camera_Recorder.MyDelegate(recordingDone);
+
+               // this.ConnectCamera();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        private void View_FormClosing(object sender, EventArgs e)
+        {
+            DisconnectCamera();
+        }
+
+        private void View_FormLoaded(object sender, EventArgs e)
+        {
+            Task T = Task.Run(() =>
+            {
                 view.BindData(model.ReturnGridSource());
             });
+        }
 
-            // recording related code
-            // //TODO:
-            //recorder = new Camera_Recorder();
-            //this.ConnectCamera();
+        public void StartTrigger()
+        {
+            recorder.InvertLine0ToTrue();
+        }
+
+        public void StopTrigger()
+        {
+            recorder.InvertLine0ToFalse();
+        }
+
+        public void SetRecordingMode()
+        {
+
+            if (view.auto)
+            {
+                automatic_recording(recorder);
+            }
+            else
+            {
+                manual_recording_Click(recorder);
+            }
+        }
+
+        // auto start recording
+        public void recordingStarted(string msg)
+        {
+            if (view.auto)
+            {
+                view.StartRecording();
+            }
+        }
+
+        // auto stop recording
+        public void recordingDone(string msg)
+        {
+           
+            //Task taskStitch = new Task(() => callStitch(msg));
+            //taskStitch.Start();
+
+            if (view.auto)
+            {
+                try
+                {
+
+
+                  
+
+                    view.StopRecording();
+
+
+                    this.SaveData();
+
+                    this.RunStitch();
+
+
+
+                    if (this.LPExists())
+                    {
+                        SelectImageComparison();
+                        this.RunFOD();
+                    }
+
+                
+                }
+                catch (Exception)
+                {
+
+                   
+                }
+               
+
+               
+
+            }
+        }
+
+        private int automatic_recording(Camera_Recorder recorder)
+        {
+            return 0;
+            int result = 0;
+
+            if (recorder.LoadUserSet0() < 0)
+            {
+                //! Error loading UserSet
+
+                result = -1;
+            }
+            else
+            {
+                //! UserSet loaded correctly
+
+                //Todo 10: Disable manual recording buttons
+
+                // Todo 11: Start Camera too
+            }
+
+           //start_recording(recorder);
+           StartRecord();
+
+            return result;
+        }
+
+        private int manual_recording_Click(Camera_Recorder recorder)
+        {
+            return 0;
+            int result = 0;
+
+            if (recorder.LoadUserSet1() < 0)
+            {
+                //! Error loading UserSet
+
+                result = -1;
+            }
+            else
+            {
+                //! UserSet loaded correctly
+            }
+
+            return result;
         }
 
         void view_BtnSettings(object sender, EventArgs e)
         {
             var frm = new frmSettings();
             frm.Show();
+            //MessageBox.Show(view.auto.ToString());
         }
 
         void view_BtnSearchRecords(object sender, EventArgs e)
         {
             //view.BindData(model.ReturnGridSource());
+            //this.RunStitch();
+
             var frm = new frmSearchRecords();
             frm.Show();
         }
@@ -65,47 +222,215 @@ namespace IVISS.Presenter
             MessageBox.Show("view_BtnCamera");
         }
 
+        #region RECORDING_CODE
+
         void view_BtnRecordingOn(object sender, EventArgs e)
         {
-            //MessageBox.Show("Recording Stop");
-            StopRecord();
-
-            // run stitch.exe
-            Task tStitch = Task.Run(() =>
+            try
             {
-                ProcessStartInfo _processStartInfo = new ProcessStartInfo();
-                _processStartInfo.WorkingDirectory = Application.StartupPath + @"\stitch\";
-                _processStartInfo.FileName = @"stitch.exe";
-                _processStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                _processStartInfo.CreateNoWindow = true;
+               
 
-                Process myProcess = Process.Start(_processStartInfo);
-            });
+                //// run stitch code from within the app 
+                ///*
+                //Stitch st = new Stitch();
+                //st.recordingPath = view.recordingPath;
+                //view.stitchImage = st.Create();
+                //*/
 
-            // run stitch code from within the app 
-            /*
-            Stitch st = new Stitch();
-            st.recordingPath = view.recordingPath;
-            view.stitchImage = st.Create();
-            */
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+
+        public void ProcessView_BtnRecordingOn()
+        {
+            //this.StopRecord();
+
+           
+
+            this.RunStitch();
+
+            // check license plate exists in db 
+           
         }
 
         void view_BtnRecordingOff(object sender, EventArgs e)
         {
-            //MessageBox.Show("Recording Start");
-            StartRecord();
-            
-            
+           // this.StartRecord();
         }
 
-        #region RECORDING_CODE
+        public bool LPExists()
+        {
+            var licensePlate = view.lpNumEnglish;
+            var licensePlateArab = view.lpNumArabic;
+
+            using (IVISSEntities db = new IVISSEntities())
+            {
+
+                var detail = from d in db.Details
+                              select d;
+
+                if (licensePlate.Trim().Length > 0)
+                    detail = detail.Where(d => d.visitor_license_number == licensePlate);
+                else
+                    detail = detail.Where(d => d.visitor_license_number_arabic == licensePlateArab);
+
+                if (detail.Count() > 1)
+
+                    return true;
+                else
+                    return false;
+
+                //var vi = detail.FirstOrDefault();
+                
+                //if (vi != null)
+                //{
+                //    return true;
+                //}
+                //else
+                //{
+                //    return false;
+                //}
+            }
+        }
+
+        private void MakeDefault()
+        {
+            var licensePlate = view.lpNumEnglish;
+        }
+        public string SelectImageComparison()
+        {
+            var licensePlate = view.lpNumEnglish;
+            var licensePlateArab = view.lpNumArabic;
+
+            using (IVISSEntities db = new IVISSEntities())
+            {
+
+                var detail = from d in db.Details
+                              select d;
+
+                if (licensePlate.Trim().Length > 0)
+                    detail = detail.Where(d => d.visitor_license_number == licensePlate);
+                else
+                    detail = detail.Where(d => d.visitor_license_number_arabic == licensePlateArab);
+
+                var detailDefault = detail.Where(d => d.is_default == 1);
+
+                var vi = detailDefault.FirstOrDefault();
+
+                if (detailDefault.Count() == 0)
+                {
+                    vi = detail.FirstOrDefault();
+                }
+
+                if (vi != null)
+                {
+                     MainV1.refImage = vi.visitor_iviss_recording + @"\outPutVer.jpg";
+                    return vi.visitor_iviss_recording;
+                }
+                else
+                {
+                    MainV1.refImage = string.Empty;
+                    return string.Empty;
+                }
+            }
+        }
+
+        private void RunStitch()
+        {
+            MessageBox.Show("stitch");
+
+            System.Threading.Thread.Sleep(100);
+
+            // run stitch.exe
+            //Task tStitch = Task.Run(() =>
+            //{
+            //    ProcessStartInfo _processStartInfo = new ProcessStartInfo();
+            //    _processStartInfo.WorkingDirectory = Application.StartupPath + @"\stitch\";
+            //    _processStartInfo.FileName = @"stitch.exe";
+            //    _processStartInfo.UseShellExecute = true;
+            //    //_processStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            //   // _processStartInfo.CreateNoWindow = true;
+            //    _processStartInfo.Arguments = "\"" + model.destinationDir + "\""; //"C:\\IVISSTemp\\"; //"\"" + destination_dir + "\"";
+            //    _processStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            //    Process myProcess = Process.Start(_processStartInfo);
+
+            //});
+         
+            view.LoadCompositeImage(model.destinationDir);
+
+           
+        }
+
+
+
+      
+
+        private void RunFOD()
+        {
+           // view.RunFODAsync(model.destinationDir + "\"" + " outPutVer.jpg ", model.destinationDir + "\"" + " outPutVer.jpg ");
+            //Task tFOD = Task.Run(() =>
+            //{
+            //    ProcessStartInfo _processStartInfo = new ProcessStartInfo();
+            //    _processStartInfo.WorkingDirectory = Application.StartupPath + @"\FOD\";
+            //    _processStartInfo.FileName = @"ForeignObjectDetection.exe";
+            //    _processStartInfo.Arguments = "\"" + model.destinationDir + "\"" + " outPutVer.jpg " + "\"" + model.destinationDir + "\"" + " outPutVer.jpg "; //"C:\\IVISSTemp\\"; //"\"" + destination_dir + "\"";
+            //    _processStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            //    _processStartInfo.CreateNoWindow = true;
+
+            //    Process myProcess = Process.Start(_processStartInfo);
+            //});
+        }
+
+        public string SaveData()
+        {
+            string dest_dir = "";
+            model.lpNumEnglish = view.lpNumEnglish;
+            model.lpNumArabic = view.lpNumArabic;
+            model.accuracy = view.accuracy;
+            model.origin = view.origin;
+            model.plateColor = view.plateColor;
+            model.plateSubColor = view.plateSubColor;
+            model.applicationPath = Application.StartupPath;
+            
+            dest_dir=model.AddToDatabase();
+
+            Task T = Task.Run(() => 
+            {
+                view.BindData(model.ReturnGridSource());
+            });
+
+            if (this.LPExists())
+            {
+                SelectImageComparison();
+                // view.LoadImageComparisonWithFOD(SelectImageComparison());
+                this.RunFOD();
+            }
+            else
+            {
+                MakeDefault();
+            }
+            return dest_dir;
+        }
+
+        public void RefreshGrid()
+        {
+            Task T = Task.Run(() =>
+            {
+                view.BindData(model.ReturnGridSource());
+            });
+        }
+
         private bool ConnectCamera()
         {
             // Finds the list of cameras and gets a reference to the camera
             if (recorder.ConnectCamera() < 0)
             {
                 //Console.WriteLine("Error finding a camera");
-                MessageBox.Show("Error finding a camera");
+               // MessageBox.Show("Error finding a camera");
                 return false;
             }
 
@@ -122,15 +447,22 @@ namespace IVISS.Presenter
 
         private bool DisconnectCamera()
         {
-            // Disconnects the camera
-            if (recorder.DisconnectCamera() < 0)
+            return true;
+            try
             {
-                //Console.WriteLine("Error disconnecting a camera");
-                MessageBox.Show("Error disconnecting a camera");
+                // Disconnects the camera
+                if (recorder.DisconnectCamera() < 0)
+                {
+                    //Console.WriteLine("Error disconnecting a camera");
+                   // MessageBox.Show("Error disconnecting a camera");
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
                 return false;
             }
-
-            return true;
         }
 
         private bool StartRecord()
@@ -247,6 +579,7 @@ namespace IVISS.Presenter
 
         public bool ProcessKeyLok()
         {
+
             UInt32 FortressDongleCount = 0;
             FortressDongleCount = keylok.GetFortressDongles();
 
@@ -258,6 +591,7 @@ namespace IVISS.Presenter
 
             if (!keylok.IsPresent())
             {
+                
                 MessageBox.Show("Failed to detect IVISS Security Dongle", "IVISS");
                 Environment.Exit(0);
 
@@ -276,8 +610,25 @@ namespace IVISS.Presenter
                     return false;
                 }
             }
-
+          
+            
             return true;
+        }
+
+
+        public string GetDefaultOfSameVehicle(string licenseplate)
+        {
+            return model.GetDefaultOfSameVehicle(licenseplate);
+        }
+
+        public bool UpDateSerial(string serial)
+        {
+            return model.UpDateSerial(serial);
+        }
+
+        public void FillAdditionalALPR()
+        {
+            model.FillAdditionalALPR();
         }
 
         public void FillSettings()
@@ -286,7 +637,7 @@ namespace IVISS.Presenter
             if (query != null)
             {
                 //***************************** Live Mode Relay Ports ****************************
-
+               
                 if (int.TryParse(query.AirWash, out int airWashPort))
                     Global.mNCDAirWash = (airWashPort - 1).ToString();
 
@@ -328,13 +679,23 @@ namespace IVISS.Presenter
                 Global.mlblRelay4 = query.Relay4;
                 Global.mlblRelayArab4 = query.Relay4Arab;
 
-                Global.mALPRCamIP = query.LicenseCamIP;
+                Global.ALPR_CAMERA_HOST[Global.ENTRY_ALPR] = Global.mALPRCamIP = query.LicenseCamIP;
                 Global.mDriverCamIP = query.DriverCamIP;
                 Global.mSceneCamIP = query.SceneCamIP;
 
                 Global.mDriverCamPassword = query.DriverCamPassword;
-                Global.mSceneCamIP = query.SceneCamPassword;
+                Global.mScenecamPassword = query.SceneCamPassword;
 
+                Global.mIPAddress = query.IPAddress;
+                Global.mListenPort = query.ListenPort;
+
+                Global.ENTRY_LOOP_SENSOR = query.ALPREntryLoop ?? false;
+
+                Global.AIEnabled= query.AIEnabled ?? false;
+
+                Global.LicenseNo = query.LicenseNo ?? "";
+
+                Global.m_Gate_No = query.gate_no ?? "";
                 /*
                 global.DRIVER_REC_TIMEOUT = query.DriverRecTimeout ?? global.DRIVER_REC_TIMEOUT;
 

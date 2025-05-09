@@ -27,14 +27,14 @@ namespace IVISS
     
         public virtual DbSet<Admin> Admins { get; set; }
         public virtual DbSet<Camera> Cameras { get; set; }
-        public virtual DbSet<Detail> Details { get; set; }
         public virtual DbSet<Facility> Facilities { get; set; }
         public virtual DbSet<Gate> Gates { get; set; }
         public virtual DbSet<Guard> Guards { get; set; }
         public virtual DbSet<Organization> Organizations { get; set; }
-        public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
-        public virtual DbSet<SystemSetting> SystemSettings { get; set; }
         public virtual DbSet<Vehicle> Vehicles { get; set; }
+        public virtual DbSet<SystemSetting> SystemSettings { get; set; }
+        public virtual DbSet<Detail> Details { get; set; }
         public virtual DbSet<Visitor> Visitors { get; set; }
+        public virtual DbSet<AdditionalALPR> AdditionalALPRs { get; set; }
     }
 }

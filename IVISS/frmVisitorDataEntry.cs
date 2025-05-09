@@ -62,6 +62,8 @@ namespace IVISS
                     return;
                 }
 
+                this.Cursor = Cursors.WaitCursor;
+
                 if (m_VisitorID > 0)
                 {
                     using (var db = new IVISSEntities())
@@ -160,6 +162,7 @@ namespace IVISS
                         Global.AppendString(oex.ToString());
                         return;
                     }
+                    
                 }
 
                 ClearTextBoxes();
@@ -168,6 +171,11 @@ namespace IVISS
             {
                 MessageBox.Show(ex.ToString());
             }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+            }
+
         }
 
         private void ClearTextBoxes()
@@ -189,6 +197,8 @@ namespace IVISS
 
             this.cboAuthorization.SelectedIndex = 0;
             this.cboClassification.SelectedIndex = 0;
+
+            m_Picture = "";
         }
 
         private void btnSearch_Click(object sender, EventArgs e)

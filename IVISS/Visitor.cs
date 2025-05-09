@@ -39,6 +39,7 @@ namespace IVISS
         public Nullable<int> visitor_organization { get; set; }
         public Nullable<int> visitor_facility { get; set; }
         public Nullable<byte> uploaded { get; set; }
+        public Nullable<byte> isDeleted { get; set; }
     
         public virtual Facility Facility { get; set; }
         public virtual Organization Organization { get; set; }

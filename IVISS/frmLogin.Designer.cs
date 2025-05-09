@@ -57,11 +57,11 @@
             // lblDisclaimer
             // 
             this.lblDisclaimer.AutoSize = true;
-            this.lblDisclaimer.Font = new System.Drawing.Font("Open Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDisclaimer.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDisclaimer.ForeColor = System.Drawing.Color.White;
             this.lblDisclaimer.Location = new System.Drawing.Point(572, 74);
             this.lblDisclaimer.Name = "lblDisclaimer";
-            this.lblDisclaimer.Size = new System.Drawing.Size(55, 22);
+            this.lblDisclaimer.Size = new System.Drawing.Size(51, 20);
             this.lblDisclaimer.TabIndex = 130;
             this.lblDisclaimer.Text = "label2";
             // 
@@ -74,7 +74,7 @@
             this.btnOK.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
             this.btnOK.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
             this.btnOK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnOK.Font = new System.Drawing.Font("Open Sans Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnOK.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnOK.ForeColor = System.Drawing.Color.Black;
             this.btnOK.Location = new System.Drawing.Point(732, 559);
             this.btnOK.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -88,11 +88,11 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Open Sans", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.White;
             this.label1.Location = new System.Drawing.Point(674, 705);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(467, 18);
+            this.label1.Size = new System.Drawing.Size(503, 16);
             this.label1.TabIndex = 129;
             this.label1.Text = "DISCLAIMER DISCLAIMER DISCLAIMER DISCLAIMER DISCLAIMER DISCLAIMER";
             this.label1.Visible = false;
@@ -107,7 +107,7 @@
             this.btnCancel.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
             this.btnCancel.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCancel.Font = new System.Drawing.Font("Open Sans Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCancel.ForeColor = System.Drawing.Color.Black;
             this.btnCancel.Location = new System.Drawing.Point(980, 559);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -121,51 +121,51 @@
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Font = new System.Drawing.Font("Open Sans", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label23.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label23.ForeColor = System.Drawing.Color.White;
             this.label23.Location = new System.Drawing.Point(13, 142);
             this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(77, 18);
+            this.label23.Size = new System.Drawing.Size(87, 16);
             this.label23.TabIndex = 108;
             this.label23.Text = "PASSWORD";
             // 
             // label22
             // 
             this.label22.AutoSize = true;
-            this.label22.Font = new System.Drawing.Font("Open Sans", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label22.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label22.ForeColor = System.Drawing.Color.White;
             this.label22.Location = new System.Drawing.Point(13, 94);
             this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(76, 18);
+            this.label22.Size = new System.Drawing.Size(85, 16);
             this.label22.TabIndex = 109;
             this.label22.Text = "USERNAME";
             // 
             // label21
             // 
             this.label21.AutoSize = true;
-            this.label21.Font = new System.Drawing.Font("Open Sans Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label21.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label21.ForeColor = System.Drawing.Color.White;
             this.label21.Location = new System.Drawing.Point(12, 39);
             this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(130, 22);
+            this.label21.Size = new System.Drawing.Size(145, 20);
             this.label21.TabIndex = 107;
             this.label21.Text = "LOGIN TO IVISS";
             // 
             // lblErrMsg
             // 
             this.lblErrMsg.AutoSize = true;
-            this.lblErrMsg.Font = new System.Drawing.Font("Open Sans Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblErrMsg.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblErrMsg.ForeColor = System.Drawing.Color.White;
             this.lblErrMsg.Location = new System.Drawing.Point(214, 188);
             this.lblErrMsg.Name = "lblErrMsg";
-            this.lblErrMsg.Size = new System.Drawing.Size(0, 18);
+            this.lblErrMsg.Size = new System.Drawing.Size(0, 16);
             this.lblErrMsg.TabIndex = 113;
             // 
             // txtUsername
             // 
             this.txtUsername.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(104)))), ((int)(((byte)(116)))));
             this.txtUsername.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtUsername.Font = new System.Drawing.Font("Open Sans", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtUsername.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtUsername.ForeColor = System.Drawing.Color.White;
             this.txtUsername.Location = new System.Drawing.Point(222, 92);
             this.txtUsername.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -173,6 +173,7 @@
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.Size = new System.Drawing.Size(471, 21);
             this.txtUsername.TabIndex = 110;
+            this.txtUsername.Text = "admin";
             // 
             // pnlLogin
             // 
@@ -203,7 +204,7 @@
             // 
             this.txtPassword.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(104)))), ((int)(((byte)(116)))));
             this.txtPassword.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtPassword.Font = new System.Drawing.Font("Open Sans", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtPassword.ForeColor = System.Drawing.Color.White;
             this.txtPassword.Location = new System.Drawing.Point(9, 7);
             this.txtPassword.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -212,15 +213,16 @@
             this.txtPassword.PasswordChar = '*';
             this.txtPassword.Size = new System.Drawing.Size(470, 25);
             this.txtPassword.TabIndex = 15;
+            this.txtPassword.Text = "123";
             // 
             // lblError
             // 
             this.lblError.AutoSize = true;
-            this.lblError.Font = new System.Drawing.Font("Open Sans Semibold", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblError.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblError.ForeColor = System.Drawing.Color.Turquoise;
             this.lblError.Location = new System.Drawing.Point(214, 300);
             this.lblError.Name = "lblError";
-            this.lblError.Size = new System.Drawing.Size(0, 18);
+            this.lblError.Size = new System.Drawing.Size(0, 16);
             this.lblError.TabIndex = 101;
             // 
             // panel5
@@ -313,7 +315,7 @@
             this.Controls.Add(this.btnClose);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "frmLogin";
-            this.Text = "frmLogin";
+            this.Text = "C-IVISS";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.frmLogin_Load);
             this.pnlLogin.ResumeLayout(false);

@@ -40,7 +40,9 @@ namespace IVISS
         public string visitor_access_gate { get; set; }
         public Nullable<byte> uploaded { get; set; }
         public string visitor_authorization { get; set; }
-        public Nullable<byte> gate_no { get; set; }
+        public string gate_no { get; set; }
         public Nullable<byte> deleted { get; set; }
+        public Nullable<byte> is_default { get; set; }
+        public Nullable<byte> is_primary { get; set; }
     }
 }

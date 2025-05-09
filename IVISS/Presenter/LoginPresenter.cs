@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
+
 namespace IVISS.Presenter
 {
     class LoginPresenter
@@ -20,14 +21,29 @@ namespace IVISS.Presenter
             model = new LoginModel();
 
             view.BtnOk += view_BtnOk;
+           
         }
 
         void view_BtnOk(object sender, EventArgs e)
         {
             try
             {
-                if (ValidateControls())
+
+                if(view.password=="")
                 {
+                    view.errMsg = "Password cannot be left blanked";
+                    return;
+                }
+
+                if (view.username == "")
+                {
+                    view.errMsg = "User name cannot be left blanked";
+                    return;
+                }
+
+                if (ValidateControls())
+                { 
+                    //Abc123~!@
                     model.username = view.username;
                     model.password = StringCipher.Encrypt(view.password, Global.PASSPHRASE);
 
@@ -35,6 +51,7 @@ namespace IVISS.Presenter
 
                     if (Global.USER_TYPE == "ADMIN" || Global.USER_TYPE == "MANAGER" || Global.USER_TYPE == "GUARD")
                     {
+                        Global.USER_NAME = view.username;
                         view.CloseForm();
                     }
                     else
@@ -62,13 +79,13 @@ namespace IVISS.Presenter
         {
             if (view.username.Length == 0)
             {
-                MessageBox.Show("Username cannot be left blanked", Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MetroFramework.MetroMessageBox.Show(view.currentForm, "Username cannot be left blanked", Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
             if (view.password.Length == 0)
             {
-                MessageBox.Show("Password cannot be left blanked", Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MetroFramework.MetroMessageBox.Show(view.currentForm, "Password cannot be left blanked", Global.COMPANY_NAME, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 

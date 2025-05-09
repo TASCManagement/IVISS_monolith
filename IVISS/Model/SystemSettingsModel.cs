@@ -1,8 +1,11 @@
-﻿using System;
+﻿using IVISS.Utility;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity.Validation;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace IVISS.Model
 {
@@ -27,7 +30,11 @@ namespace IVISS.Model
         public string SceneCamPassword { set; get; }
         public string GateName { set; get; }
         public string ComPort { set; get; }
+        public string IPAddress { set; get; }
+        public string ListenPort { set; get; }
         public bool ALPRLoop { set; get; }
+
+        public bool AIEnabled { set; get; }
         public bool Update()
         {
             try
@@ -39,22 +46,26 @@ namespace IVISS.Model
 
                     if (query != null)
                     {
-                        query.Relay1 = Relay1CaptionEnglish;
-                        query.Relay1Arab = Relay1CaptionArabic;
-                        query.Relay1Port = Relay1Port;
+                        //if (Global.IsRelayAllowed)
+                        //{
+                            query.Relay1 = Relay1CaptionEnglish;
+                            query.Relay1Arab = Relay1CaptionArabic;
+                            query.Relay1Port = Relay1Port;
 
-                        query.Relay2 = Relay2CaptionEnglish;
-                        query.Relay2Arab = Relay2CaptionArabic;
-                        query.Relay2Port = Relay2Port;
+                            query.Relay2 = Relay2CaptionEnglish;
+                            query.Relay2Arab = Relay2CaptionArabic;
+                            query.Relay2Port = Relay2Port;
 
-                        query.Relay3 = Relay3CaptionEnglish;
-                        query.Relay3Arab = Relay3CaptionArabic;
-                        query.Relay3Port = Relay3Port;
+                            query.Relay3 = Relay3CaptionEnglish;
+                            query.Relay3Arab = Relay3CaptionArabic;
+                            query.Relay3Port = Relay3Port;
 
-                        query.Relay4 = Relay4CaptionEnglish;
-                        query.Relay4Arab = Relay4CaptionArabic;
-                        query.Relay4Port = Relay4Port;
-
+                            query.Relay4 = Relay4CaptionEnglish;
+                            query.Relay4Arab = Relay4CaptionArabic;
+                            query.Relay4Port = Relay4Port;
+                            query.IPAddress = IPAddress;
+                            query.ListenPort = ListenPort;
+                      //  }
                         query.LicenseCamIP = AlprIP;
                         query.DriverCamIP = DriverIP;
                         query.SceneCamIP = SceneIP;
@@ -73,9 +84,64 @@ namespace IVISS.Model
 
                         //int port = 0;
                         //bool result = int.TryParse(this.txtComPort.Text, out port);
-                        query.PortNo = ComPort;
-                        query.ALPREntryLoop = ALPRLoop;
+                        //query.PortNo = ComPort;
 
+                        query.PortNo = "";
+
+                        query.ALPREntryLoop = ALPRLoop;
+                        query.AIEnabled = AIEnabled;
+                        query.gate_no = Global.m_Gate_No.ToString();
+
+                        db.SaveChanges();
+                    }
+                    else
+                    {
+                        var newSetting = new SystemSetting();
+                        newSetting.Relay1 = Relay1CaptionEnglish;
+                        newSetting.Relay1Arab = Relay1CaptionArabic;
+                        newSetting.Relay1Port = Relay1Port;
+
+                        newSetting.Relay2 = Relay2CaptionEnglish;
+                        newSetting.Relay2Arab = Relay2CaptionArabic;
+                        newSetting.Relay2Port = Relay2Port;
+
+                        newSetting.Relay3 = Relay3CaptionEnglish;
+                        newSetting.Relay3Arab = Relay3CaptionArabic;
+                        newSetting.Relay3Port = Relay3Port;
+
+                        newSetting.Relay4 = Relay4CaptionEnglish;
+                        newSetting.Relay4Arab = Relay4CaptionArabic;
+                        newSetting.Relay4Port = Relay4Port;
+
+                        newSetting.LicenseCamIP = AlprIP;
+                        newSetting.DriverCamIP = DriverIP;
+                        newSetting.SceneCamIP = SceneIP;
+
+                        newSetting.ExitLicenseCamIP = "";
+                        newSetting.ExitDriverCamIP = "";
+
+                        //query.ALPREntryLoop = global.ENTRY_LOOP_SENSOR = this.ALPREntryLoopToggle.Checked;
+                        //query.ALPRExitLoop = global.EXIT_LOOP_SENSOR = this.ALPRExitLoopToggle.Checked;
+
+                        newSetting.DriverCamPassword = DriverCamPassword;
+                        newSetting.SceneCamPassword = SceneCamPassword;
+
+                        //bool r = int.TryParse(this.txtRecTimeout.Text, out int timeout);
+                        //query.DriverRecTimeout = (r) ? timeout : global.DRIVER_REC_TIMEOUT;
+
+                        //int port = 0;
+                        //bool result = int.TryParse(this.txtComPort.Text, out port);
+                        //query.PortNo = ComPort;
+
+                        newSetting.PortNo = "";
+
+                        newSetting.ALPREntryLoop = ALPRLoop;
+                        newSetting.AIEnabled = AIEnabled;
+                        newSetting.IPAddress = IPAddress;
+                        newSetting.ListenPort = ListenPort;
+                        newSetting.gate_no = Global.m_Gate_No.ToString();
+                        newSetting.Id = 1;
+                        db.SystemSettings.Add(newSetting);
                         db.SaveChanges();
                     }
                 }
@@ -93,8 +159,29 @@ namespace IVISS.Model
                 return true;
 
             }
+
+            catch (DbEntityValidationException e)
+            {
+                string strerror = "";
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    Console.WriteLine("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:",
+                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        strerror = "prop="+ve.PropertyName + "-msg=" + ve.ErrorMessage;
+                        Console.WriteLine("- Property: \"{0}\", Error: \"{1}\"",
+                            ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+
+
+                MessageBox.Show(strerror);
+                return false;
+            }
             catch (Exception ex)
             {
+                MessageBox.Show(ex.ToString());
                 return false;
                 //MessageBox.Show(ex.ToString());
             }
@@ -163,18 +250,26 @@ namespace IVISS.Model
                         Relay4CaptionArabic = query.Relay4Arab;
                         Relay4Port = query.Relay4Port;
 
-                        //global.ALPR_CAMERA_HOST[global.ENTRY_ALPR] = this.txtEntryLPIP.Text = query.LicenseCamIP;
+                        Global.ALPR_CAMERA_HOST[Global.ENTRY_ALPR] = query.LicenseCamIP;
                         //global.ALPR_CAMERA_HOST[global.EXIT_ALPR] = this.txtExitALPRIP.Text = query.ExitLicenseCamIP;
 
                         DriverIP = query.DriverCamIP;
                         SceneIP = query.SceneCamIP;
                         AlprIP = query.LicenseCamIP;
-
+                        AIEnabled = query.AIEnabled ?? false;
                         DriverCamPassword = query.DriverCamPassword;
                         SceneCamPassword = query.SceneCamPassword;
 
                         ALPRLoop = query.ALPREntryLoop ?? false;
 
+                        IPAddress = query.IPAddress;
+                        ListenPort = query.ListenPort;
+                        GateName = query.gate_no??"0";
+                      
+                        if (query.gate_no== null)
+                             query.gate_no = "0";
+
+                        Global.m_Gate_No = query.gate_no.ToString();
                         /*
                         global.DRIVER_REC_TIMEOUT = query.DriverRecTimeout ?? global.DRIVER_REC_TIMEOUT;
 

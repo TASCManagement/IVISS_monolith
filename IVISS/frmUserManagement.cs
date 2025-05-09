@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using IVISS.View;
 using IVISS.Presenter;
 using IVISS.Utility;
+using MaterialSkin.Controls;
 
 namespace IVISS
 {
@@ -20,7 +21,7 @@ namespace IVISS
         public event EventHandler BtnDelete;
         public event EventHandler RdoManager;
         public event EventHandler RdoGuard;
-        public event EventHandler FormLoad;
+        public event EventHandler FormLoadUser;
 
         UserManagementPresenter presenter;
 
@@ -77,6 +78,9 @@ namespace IVISS
             get { return this.btnSave.Text; }
         }
 
+        public MaterialForm userManagementForm { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool userManagemenAlreadyLoaded { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public frmUserManagement()
         {
             InitializeComponent();
@@ -99,7 +103,13 @@ namespace IVISS
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            BtnSave(sender, e);
+            try
+            {
+                this.Cursor = Cursors.WaitCursor;
+                BtnSave(sender, e);
+            }
+            catch { }
+            finally { this.Cursor = Cursors.Default; }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
@@ -151,7 +161,7 @@ namespace IVISS
             finally { /* dgView.ReadOnly = false; */ }
         }
 
-        public void Reset()
+        public void ResetUser()
         {
             btnSave.Text = "SAVE";
 
@@ -167,7 +177,7 @@ namespace IVISS
 
         private void frmUserManagement_Load(object sender, EventArgs e)
         {
-            FormLoad(sender, e);
+            FormLoadUser(sender, e);
         }
     }
 }

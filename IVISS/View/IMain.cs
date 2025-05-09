@@ -19,14 +19,31 @@ namespace IVISS.View
 
         event EventHandler BtnSettings;
 
+        event EventHandler FormLoaded;
+        event EventHandler FormIsClosing;
+
         string lpNumEnglish { set; get; }
         string lpNumArabic { set; get; }
+        string accuracy { set; get; }
+        string origin { set; get; }
+        string plateColor { set; get; }
+        string plateSubColor { set; get; }
         string recordingPath { set; get; }
-        
+        bool auto { set; get; }
+
         Bitmap stitchImage { set; }
         Bitmap comparisonImage { set; }
         
         void BindData(DataTable dt);
-        void Save();
+        void LoadCompositeImage(string destDir);
+        void LoadImageComparison(string destDir);
+
+      //  void LoadImageComparisonWithFOD(string destDir);
+
+        
+        bool StartRecording();
+        bool StopRecording();
+         void RunFODAsync(string caseimage, string referenceimage,bool IsManual);
+        //void Save();
     }
 }

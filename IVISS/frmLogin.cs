@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using IVISS.Utility;
 using IVISS.View;
 using IVISS.Presenter;
+using MaterialSkin.Controls;
 
 namespace IVISS
 {
@@ -135,6 +136,8 @@ namespace IVISS
         {
             set { lblErrMsg.Text = value;  }
         }
+
+        public MaterialForm currentForm { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public void CloseForm()
         {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MaterialSkin.Controls;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -9,7 +10,7 @@ using System.Windows.Forms;
 
 namespace IVISS
 {
-    public partial class frmMessageBox : Form
+    public partial class frmMessageBox : MaterialForm
     {
         public frmMessageBox(bool showCancel = true)
         {
@@ -40,6 +41,11 @@ namespace IVISS
         {
             if (StatusMessage.Length > 0)
                 this.lblStatus.Text = StatusMessage;
+        }
+
+        private void btnCancel_Click_1(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

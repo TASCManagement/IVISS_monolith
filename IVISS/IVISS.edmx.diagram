@@ -7,23 +7,23 @@
       <Diagram DiagramId="baf6283016934e528a2a1fe8a642070b" Name="Diagram1">
         <EntityTypeShape EntityType="IVISSModel.Admin" Width="1.5" PointX="5.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="IVISSModel.Camera" Width="1.5" PointX="3" PointY="1.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="IVISSModel.Detail" Width="1.5" PointX="10.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="IVISSModel.Facility" Width="1.5" PointX="0.75" PointY="7.75" IsExpanded="true" />
         <EntityTypeShape EntityType="IVISSModel.Gate" Width="1.5" PointX="0.75" PointY="0.875" IsExpanded="true" />
         <EntityTypeShape EntityType="IVISSModel.Guard" Width="1.5" PointX="5.25" PointY="6.125" IsExpanded="true" />
         <EntityTypeShape EntityType="IVISSModel.Organization" Width="1.5" PointX="3" PointY="8" IsExpanded="true" />
-        <EntityTypeShape EntityType="IVISSModel.sysdiagram" Width="1.5" PointX="0.75" PointY="4.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="IVISSModel.SystemSetting" Width="1.5" PointX="10.75" PointY="8.75" IsExpanded="true" />
         <EntityTypeShape EntityType="IVISSModel.Vehicle" Width="1.5" PointX="7.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="IVISSModel.Visitor" Width="1.5" PointX="8.25" PointY="6.25" IsExpanded="true" />
         <AssociationConnector Association="IVISSModel.FK_Cameras_Gates" ManuallyRouted="false" />
         <AssociationConnector Association="IVISSModel.FK_Guard_Facility" ManuallyRouted="false" />
-        <AssociationConnector Association="IVISSModel.FK_Visitor_Facility" ManuallyRouted="false" />
         <AssociationConnector Association="IVISSModel.FK_Guard_Guard" ManuallyRouted="false" />
         <AssociationConnector Association="IVISSModel.FK_Guard_Organization" ManuallyRouted="false" />
-        <AssociationConnector Association="IVISSModel.FK_Visitor_Organization" ManuallyRouted="false" />
-        <AssociationConnector Association="IVISSModel.FK_Visitor_Visitor" ManuallyRouted="false" />
         <AssociationConnector Association="IVISSModel.OrganizationFacility" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="IVISSModel.SystemSetting" Width="1.5" PointX="10.375" PointY="8.75" />
+        <EntityTypeShape EntityType="IVISSModel.Detail" Width="1.5" PointX="10.375" PointY="0.75" />
+        <EntityTypeShape EntityType="IVISSModel.Visitor" Width="1.5" PointX="5.25" PointY="13.125" />
+        <AssociationConnector Association="IVISSModel.FK_Visitor_Facility" />
+        <AssociationConnector Association="IVISSModel.FK_Visitor_Organization" />
+        <AssociationConnector Association="IVISSModel.FK_Visitor_Visitor" />
+        <EntityTypeShape EntityType="IVISSModel.AdditionalALPR" Width="1.5" PointX="0.75" PointY="4.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

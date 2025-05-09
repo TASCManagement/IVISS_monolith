@@ -28,83 +28,79 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnCancel = new System.Windows.Forms.Button();
             this.lblStatus = new System.Windows.Forms.Label();
-            this.btnOK = new System.Windows.Forms.Button();
+            this.btnCancel = new MaterialSkin.Controls.MaterialFlatButton();
+            this.btnOK = new MaterialSkin.Controls.MaterialRaisedButton();
             this.SuspendLayout();
-            // 
-            // btnCancel
-            // 
-            this.btnCancel.BackColor = System.Drawing.Color.Transparent;
-            this.btnCancel.BackgroundImage = global::IVISS.Properties.Resources.medium_btn_green;
-            this.btnCancel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.FlatAppearance.BorderSize = 0;
-            this.btnCancel.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.btnCancel.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCancel.Font = new System.Drawing.Font("Open Sans Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCancel.ForeColor = System.Drawing.Color.White;
-            this.btnCancel.Location = new System.Drawing.Point(229, 205);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(154, 38);
-            this.btnCancel.TabIndex = 4;
-            this.btnCancel.Text = "CANCEL";
-            this.btnCancel.UseVisualStyleBackColor = false;
             // 
             // lblStatus
             // 
             this.lblStatus.BackColor = System.Drawing.Color.Transparent;
-            this.lblStatus.Font = new System.Drawing.Font("Open Sans Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStatus.ForeColor = System.Drawing.Color.White;
-            this.lblStatus.Location = new System.Drawing.Point(3, 26);
+            this.lblStatus.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblStatus.ForeColor = System.Drawing.Color.DimGray;
+            this.lblStatus.Location = new System.Drawing.Point(29, 85);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(434, 124);
+            this.lblStatus.Size = new System.Drawing.Size(434, 54);
             this.lblStatus.TabIndex = 2;
             this.lblStatus.Text = "Are you sure you want to update this License Plate?";
             this.lblStatus.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
+            // btnCancel
+            // 
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnCancel.Depth = 0;
+            this.btnCancel.Font = new System.Drawing.Font("Arial Black", 11F);
+            this.btnCancel.Icon = null;
+            this.btnCancel.Location = new System.Drawing.Point(257, 172);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnCancel.MouseState = MaterialSkin.MouseState.HOVER;
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Primary = false;
+            this.btnCancel.Size = new System.Drawing.Size(192, 43);
+            this.btnCancel.TabIndex = 236;
+            this.btnCancel.Text = "CANCEL";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click_1);
+            // 
             // btnOK
             // 
-            this.btnOK.BackColor = System.Drawing.Color.Transparent;
-            this.btnOK.BackgroundImage = global::IVISS.Properties.Resources.medium_btn_green;
-            this.btnOK.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOK.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnOK.Depth = 0;
             this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOK.FlatAppearance.BorderSize = 0;
-            this.btnOK.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.btnOK.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.btnOK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnOK.Font = new System.Drawing.Font("Open Sans", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnOK.Font = new System.Drawing.Font("Arial Black", 11F);
             this.btnOK.ForeColor = System.Drawing.Color.White;
-            this.btnOK.Location = new System.Drawing.Point(55, 205);
+            this.btnOK.Icon = null;
+            this.btnOK.Location = new System.Drawing.Point(33, 172);
+            this.btnOK.MouseState = MaterialSkin.MouseState.HOVER;
             this.btnOK.Name = "btnOK";
-            this.btnOK.Size = new System.Drawing.Size(154, 38);
-            this.btnOK.TabIndex = 3;
+            this.btnOK.Primary = true;
+            this.btnOK.Size = new System.Drawing.Size(209, 46);
+            this.btnOK.TabIndex = 235;
             this.btnOK.Text = "OK";
-            this.btnOK.UseVisualStyleBackColor = false;
+            this.btnOK.UseCompatibleTextRendering = true;
+            this.btnOK.UseVisualStyleBackColor = true;
             // 
             // frmMessageBox
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(104)))), ((int)(((byte)(116)))));
-            this.ClientSize = new System.Drawing.Size(440, 269);
+            this.BackColor = System.Drawing.Color.White;
+            this.ClientSize = new System.Drawing.Size(486, 239);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.lblStatus);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "frmMessageBox";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "frmMessageBox";
             this.Load += new System.EventHandler(this.frmMessageBox_Load);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button btnCancel;
-        private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Label lblStatus;
+        private MaterialSkin.Controls.MaterialFlatButton btnCancel;
+        private MaterialSkin.Controls.MaterialRaisedButton btnOK;
     }
 }

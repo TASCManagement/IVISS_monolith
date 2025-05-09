@@ -10,11 +10,14 @@ namespace IVISS.View
     interface IReports
     {
         bool IsLicensePlate { set; get; }
+        bool IsAdditionalALPR { set; get; }
         bool IsDate { set; get; }
         bool IsTime { set; get; }
 
         string LpNumEng { set; get; }
         string LpNumArab { set; get; }
+
+        string Gate_Name { set; get; }
 
         DateTime FromTime { set; get; }
         DateTime ToTime { set; get; }
@@ -22,7 +25,7 @@ namespace IVISS.View
         DateTime FromDate { set; get; }
         DateTime ToDate { set; get; }
 
-        event EventHandler BtnReset;
+        event EventHandler btnResetReports;
         event EventHandler BtnReport;
     }
 }

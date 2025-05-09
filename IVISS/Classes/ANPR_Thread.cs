@@ -80,6 +80,8 @@ namespace IVISS.Classes
 
         private Object thisLock = new Object();
 
+      
+
         public ANPR_Thread()
         {
             
@@ -111,123 +113,213 @@ namespace IVISS.Classes
             }
         }
 
-        /** Thread Function. The ANPR process is done in this thread. */
-        void ThreadFunc()
+        private void ThreadFunc()
         {
-            //gxImage local_image;
-            //q.TryTake(out bitmap);
-            //return;
-            //Bitmap local_bitmap = null;
-
-            while (!exit_flag)
+            while (!this.exit_flag)
             {
-                // This blocks until an item appears in the queue.
-                
-                //local_bitmap = q.Take();
-
-                using (Bitmap local_bitmap = q.Take())
+                using (Bitmap bitmap = this.q.Take())
                 {
-
-                    // Process the request here.
-                    //local_bitmap = b;
-                    if (local_bitmap == null)
-                        return;
-
-                    //convert Bitmap to gxImage
-                    //1. save bitmap to memory stream
-                    MemoryStream ms = new MemoryStream();
-                    local_bitmap.Save(ms, ImageFormat.Bmp);
-
-                    // 2. create byte array from the memory stream
-                    byte[] buffer = ms.ToArray();
-
-                    //lock (thisLock)
-                    //{
-
+                    if (bitmap != null)
+                    {
+                        MemoryStream memoryStream = new MemoryStream();
+                        bitmap.Save(memoryStream, ImageFormat.Bmp);
+                        byte[] array = memoryStream.ToArray();
                         try
                         {
-                            //gxImage gximg = new gxImage();
-                            using (gxImage local_image = new gxImage())
-                            { 
-                                // 3. load image from the byte array
-                                //if (nread > 0)
-
-                                if (buffer.Length > 0)
+                            using (gxImage _gxImage = new gxImage())
+                            {
+                                if (array.Length == 0 || _gxImage.LoadFromMem(array, 7))
                                 {
-                                    if (!local_image.LoadFromMem(buffer, (int)GX_PIXELFORMATS.GX_BGR)) //gximg
+                                    Thread.Sleep(100);
+                                    if (_gxImage != null && this.anpr.FindFirst(_gxImage))
                                     {
-                                        return;
+                                        ANPR_RESULT_STRUCT str = new ANPR_RESULT_STRUCT();
+                                        int nCharacters = this.anpr.GetNCharacters();
+                                        StringBuilder stringBuilder = new StringBuilder();
+                                        for (int i = 0; i < nCharacters; i++)
+                                        {
+                                            stringBuilder.Append((char)this.anpr.GetCharacter(i).code);
+                                        }
+                                        str.text = stringBuilder.ToString();
+                                       
+                                            str.textAscii = this.anpr.GetTextA();
+                                            int bkColor = this.anpr.GetBkColor();
+                                            str.plateColor = bkColor.ToString("X");
+                                            bkColor = this.anpr.GetColor();
+                                            str.plateSubColor = bkColor.ToString("X");
+                                            bkColor = this.anpr.GetConfidence();
+                                            str.accuracy = bkColor.ToString();
+                                            str.lpOrigin = this.anpr.GetType();
+                                            str.frame = this.anpr.GetFrame();
+                                            str.image = (Bitmap)bitmap.Clone();
+                                            this.anpr_result(str);
+                                        
                                     }
                                 }
-
-                                //local_image = gximg;
-                                Thread.Sleep(100);
-
-                                if (local_image != null)
+                                else
                                 {
-                                    //do the plate recognition
-                                    if (anpr.FindFirst(local_image))
-                                    {
-                                        // plate is found, raise event                    
-                                        ANPR_RESULT_STRUCT res = new ANPR_RESULT_STRUCT();
-
-                                        //cmCharacter c = anpr.GetCharacter(0);
-                                        int count = anpr.GetNCharacters();
-
-                                        StringBuilder sb = new StringBuilder();//count * 2
-                                        for (int i = 0; i < count; i++)
-                                        {
-                                            sb.Append((char)anpr.GetCharacter(i).code);
-                                            //sb.Append('\u200E'); //unit separator
-                                            //sb.Append('\u001e'); //record separator
-                                            //sb.Append('\u0020'); //space
-                                        }
-
-                                        //string strNum = anpr.GetTextA();
-                                        //StringBuilder sb = new StringBuilder(strNum.Length * 2);
-                                        //foreach (char c in strNum)
-                                        //{
-                                        //    sb.Append((char)c);
-                                        //    //sb.Append('\u001e');
-                                        //    //sb.Append('\u0020');
-                                        //}
-
-                                        res.text = sb.ToString(); //anpr.LRText2Display(sb.ToString()); // sb.ToString(); // anpr.LRText2Display(sb.ToString());
-                                        res.textAscii = anpr.GetTextA();
-
-                                        res.plateColor = anpr.GetBkColor().ToString("X");
-                                        res.plateSubColor = anpr.GetColor().ToString("X");
-                                        res.accuracy = anpr.GetConfidence().ToString();
-                                        res.lpOrigin = anpr.GetType();
-
-                                        res.frame = anpr.GetFrame();
-                                        res.image = (Bitmap)local_bitmap.Clone();
-                                        anpr_result(res);
-
-                                        //Thread.Sleep(100);
-                                    }
-                                    else
-                                    {
-                                        // No Result
-                                    }
+                                    break;
                                 }
                             }
                         }
-                        catch (gxException e)
+                        catch (gxException _gxException)
                         {
-
                         }
-
-                        //Thread.Sleep(100);
-                    //}
-                   
-                    // gximg.Close();
-                    // local_image.Dispose();
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
-
-            //===============================================================================================
         }
+
+
+        /** Thread Function. The ANPR process is done in this thread. */
+        //void OldThreadFunc()
+        //{
+        //    //gxImage local_image;
+        //    //q.TryTake(out bitmap);
+        //    //return;
+        //    //Bitmap local_bitmap = null;
+
+        //    // If the difference greater than or equal with this define the program
+        //    // prints 'MOTION'
+        //    var MOTION_OCCURRED = 1;
+
+        //    //gxMotionDetector motdet = new gxMotionDetector();
+
+        //    // Creates the motion detector object
+        //    gxMotionDetector motdet = new gxMotionDetector("default");
+        //    motdet.MPStartTransaction();
+        //    motdet.SetProperty("xsize", 1280);   // Width and height of images
+        //    motdet.SetProperty("ysize", 720);
+        //    motdet.SetProperty("scale_x", 8);    // Diminutives to 44x36
+        //    motdet.SetProperty("scale_y", 8);
+        //    motdet.SetProperty("block_x", 4);    // Block size is 4x4 pixel
+        //    motdet.SetProperty("block_y", 4);
+        //    motdet.SetProperty("contrast_min", 5);  // The minimal contrast is five in grayscale level
+        //    motdet.SetProperty("sensibility", 10);  // The block sensivility for the area
+        //    motdet.MPCommit();
+
+        //    gxMotionDetectorResult result = new gxMotionDetectorResult();
+
+        //    while (!exit_flag)
+        //    {
+        //        // This blocks until an item appears in the queue.
+
+        //        //local_bitmap = q.Take();
+
+        //        using (Bitmap local_bitmap = q.Take())
+        //        {
+
+        //            // Process the request here.
+        //            //local_bitmap = b;
+        //            if (local_bitmap == null)
+        //                return;
+
+        //            //convert Bitmap to gxImage
+        //            //1. save bitmap to memory stream
+        //            MemoryStream ms = new MemoryStream();
+        //            local_bitmap.Save(ms, ImageFormat.Bmp);
+
+        //            // 2. create byte array from the memory stream
+        //            byte[] buffer = ms.ToArray();
+
+        //            //lock (thisLock)
+        //            //{
+
+        //                try
+        //                {
+        //                    //gxImage gximg = new gxImage();
+        //                    using (gxImage local_image = new gxImage())
+        //                    {
+        //                        // 3. load image from the byte array
+        //                        //if (nread > 0)
+
+        //                        if (buffer.Length > 0)
+        //                        {
+        //                            if (!local_image.LoadFromMem(buffer, (int)GX_PIXELFORMATS.GX_BGR)) //gximg
+        //                            {
+        //                                return;
+        //                            }
+        //                        }
+
+        //                        //local_image = gximg;
+        //                        Thread.Sleep(100);
+
+        //                        // Puts the still to motion detector module
+        //                        motdet.Iteration(local_image, result);
+
+        //                        if (result.GetMaxDifference() > MOTION_OCCURRED)
+        //                        {
+        //                            if (local_image != null)
+        //                            {
+
+        //                                //do the plate recognition
+        //                                if (anpr.FindFirst(local_image))
+        //                                {
+        //                                    // plate is found, raise event                    
+        //                                    ANPR_RESULT_STRUCT res = new ANPR_RESULT_STRUCT();
+
+        //                                    //cmCharacter c = anpr.GetCharacter(0);
+        //                                    int count = anpr.GetNCharacters();
+
+        //                                    StringBuilder sb = new StringBuilder();//count * 2
+        //                                    for (int i = 0; i < count; i++)
+        //                                    {
+        //                                        sb.Append((char)anpr.GetCharacter(i).code);
+        //                                        //sb.Append('\u200E'); //unit separator
+        //                                        //sb.Append('\u001e'); //record separator
+        //                                        //sb.Append('\u0020'); //space
+        //                                    }
+
+        //                                    //string strNum = anpr.GetTextA();
+        //                                    //StringBuilder sb = new StringBuilder(strNum.Length * 2);
+        //                                    //foreach (char c in strNum)
+        //                                    //{
+        //                                    //    sb.Append((char)c);
+        //                                    //    //sb.Append('\u001e');
+        //                                    //    //sb.Append('\u0020');
+        //                                    //}
+
+        //                                    res.text = sb.ToString(); //anpr.LRText2Display(sb.ToString()); // sb.ToString(); // anpr.LRText2Display(sb.ToString());
+        //                                    res.textAscii = anpr.GetTextA();
+
+        //                                    res.plateColor = anpr.GetBkColor().ToString("X");
+        //                                    res.plateSubColor = anpr.GetColor().ToString("X");
+        //                                    res.accuracy = anpr.GetConfidence().ToString();
+        //                                    res.lpOrigin = anpr.GetType();
+
+        //                                    res.frame = anpr.GetFrame();
+        //                                    res.image = (Bitmap)local_bitmap.Clone();
+        //                                    anpr_result(res);
+
+        //                                    //Thread.Sleep(100);
+        //                                }
+        //                                else
+        //                                {
+        //                                    // No Result
+        //                                }
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //                catch (gxException e)
+        //                {
+
+        //                }
+
+        //                //Thread.Sleep(100);
+        //            //}
+
+        //            // gximg.Close();
+        //            // local_image.Dispose();
+        //        }
+        //    }
+
+        //    //===============================================================================================
+        //}
 
         /** Sets the 'image' and 'bitmap' variables. Signs to the thread that a new image has been set.
          * @param bm Image to be scanned for number plates

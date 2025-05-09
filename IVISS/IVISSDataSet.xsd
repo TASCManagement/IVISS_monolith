@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="IVISSDataSet" targetNamespace="http://tempuri.org/IVISSDataSet.xsd" xmlns:mstns="http://tempuri.org/IVISSDataSet.xsd" xmlns="http://tempuri.org/IVISSDataSet.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections>
+          <Connection AppSettingsObjectName="Settings" AppSettingsPropertyName="IVISSConnectionString" ConnectionStringObject="" IsAppSettingsProperty="true" Modifier="Assembly" Name="IVISSConnectionString (Settings)" ParameterPrefix="@" PropertyReference="ApplicationSettings.IVISS.Properties.Settings.GlobalReference.Default.IVISSConnectionString" Provider="System.Data.SqlClient" />
+        </Connections>
+        <Tables>
+          <TableAdapter BaseClass="System.ComponentModel.Component" DataAccessorModifier="AutoLayout, AnsiClass, Class, Public" DataAccessorName="vwCarsRecordTableAdapter" GeneratorDataComponentClassName="vwCarsRecordTableAdapter" Name="vwCarsRecord" UserDataComponentName="vwCarsRecordTableAdapter">
+            <MainSource>
+              <DbSource ConnectionRef="IVISSConnectionString (Settings)" DbObjectName="IVISS.dbo.vwCarsRecord" DbObjectType="View" FillMethodModifier="Public" FillMethodName="Fill" GenerateMethods="Both" GenerateShortCommands="false" GeneratorGetMethodName="GetData" GeneratorSourceName="Fill" GetMethodModifier="Public" GetMethodName="GetData" QueryType="Rowset" ScalarCallRetval="System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="true" UserGetMethodName="GetData" UserSourceName="Fill">
+                <SelectCommand>
+                  <DbCommand CommandType="Text" ModifiedByUser="false">
+                    <CommandText>SELECT visitor_entry_date, visitor_entry_time, visitor_license_number, visitor_license_number_arabic, visitor_license_region, visitor_license_country, visitor_license_back_color, visitor_license_fore_color, visitor_license_type, visitor_license_accuracy, visitor_access_gate, visitor_access_status, visitor_license_prefix, visitor_exit_gate, visitor_exit_time, visitor_exit_date, visitor_entry_gate FROM dbo.vwCarsRecord</CommandText>
+                    <Parameters />
+                  </DbCommand>
+                </SelectCommand>
+              </DbSource>
+            </MainSource>
+            <Mappings>
+              <Mapping SourceColumn="visitor_entry_date" DataSetColumn="visitor_entry_date" />
+              <Mapping SourceColumn="visitor_entry_time" DataSetColumn="visitor_entry_time" />
+              <Mapping SourceColumn="visitor_license_number" DataSetColumn="visitor_license_number" />
+              <Mapping SourceColumn="visitor_license_number_arabic" DataSetColumn="visitor_license_number_arabic" />
+              <Mapping SourceColumn="visitor_license_region" DataSetColumn="visitor_license_region" />
+              <Mapping SourceColumn="visitor_license_country" DataSetColumn="visitor_license_country" />
+              <Mapping SourceColumn="visitor_license_back_color" DataSetColumn="visitor_license_back_color" />
+              <Mapping SourceColumn="visitor_license_fore_color" DataSetColumn="visitor_license_fore_color" />
+              <Mapping SourceColumn="visitor_license_type" DataSetColumn="visitor_license_type" />
+              <Mapping SourceColumn="visitor_license_accuracy" DataSetColumn="visitor_license_accuracy" />
+              <Mapping SourceColumn="visitor_access_gate" DataSetColumn="visitor_access_gate" />
+              <Mapping SourceColumn="visitor_access_status" DataSetColumn="visitor_access_status" />
+              <Mapping SourceColumn="visitor_license_prefix" DataSetColumn="visitor_license_prefix" />
+              <Mapping SourceColumn="visitor_exit_gate" DataSetColumn="visitor_exit_gate" />
+              <Mapping SourceColumn="visitor_exit_time" DataSetColumn="visitor_exit_time" />
+              <Mapping SourceColumn="visitor_exit_date" DataSetColumn="visitor_exit_date" />
+              <Mapping SourceColumn="visitor_entry_gate" DataSetColumn="visitor_entry_gate" />
+            </Mappings>
+            <Sources />
+          </TableAdapter>
+        </Tables>
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="IVISSDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="True" msprop:Generator_DataSetName="IVISSDataSet" msprop:Generator_UserDSName="IVISSDataSet">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="vwCarsRecord" msprop:Generator_TableClassName="vwCarsRecordDataTable" msprop:Generator_TableVarName="tablevwCarsRecord" msprop:Generator_TablePropName="vwCarsRecord" msprop:Generator_RowDeletingName="vwCarsRecordRowDeleting" msprop:Generator_RowChangingName="vwCarsRecordRowChanging" msprop:Generator_RowEvHandlerName="vwCarsRecordRowChangeEventHandler" msprop:Generator_RowDeletedName="vwCarsRecordRowDeleted" msprop:Generator_UserTableName="vwCarsRecord" msprop:Generator_RowChangedName="vwCarsRecordRowChanged" msprop:Generator_RowEvArgName="vwCarsRecordRowChangeEvent" msprop:Generator_RowClassName="vwCarsRecordRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="visitor_entry_date" msprop:Generator_ColumnVarNameInTable="columnvisitor_entry_date" msprop:Generator_ColumnPropNameInRow="visitor_entry_date" msprop:Generator_ColumnPropNameInTable="visitor_entry_dateColumn" msprop:Generator_UserColumnName="visitor_entry_date" type="xs:dateTime" />
+              <xs:element name="visitor_entry_time" msprop:Generator_ColumnVarNameInTable="columnvisitor_entry_time" msprop:Generator_ColumnPropNameInRow="visitor_entry_time" msprop:Generator_ColumnPropNameInTable="visitor_entry_timeColumn" msprop:Generator_UserColumnName="visitor_entry_time" type="xs:dateTime" />
+              <xs:element name="visitor_license_number" msprop:Generator_ColumnVarNameInTable="columnvisitor_license_number" msprop:Generator_ColumnPropNameInRow="visitor_license_number" msprop:Generator_ColumnPropNameInTable="visitor_license_numberColumn" msprop:Generator_UserColumnName="visitor_license_number" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="20" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="visitor_license_number_arabic" msprop:Generator_ColumnVarNameInTable="columnvisitor_license_number_arabic" msprop:Generator_ColumnPropNameInRow="visitor_license_number_arabic" msprop:Generator_ColumnPropNameInTable="visitor_license_number_arabicColumn" msprop:Generator_UserColumnName="visitor_license_number_arabic" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="visitor_license_region" msprop:Generator_ColumnVarNameInTable="columnvisitor_license_region" msprop:Generator_ColumnPropNameInRow="visitor_license_region" msprop:Generator_ColumnPropNameInTable="visitor_license_regionColumn" msprop:Generator_UserColumnName="visitor_license_region" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="visitor_license_country" msprop:Generator_ColumnVarNameInTable="columnvisitor_license_country" msprop:Generator_ColumnPropNameInRow="visitor_license_country" msprop:Generator_ColumnPropNameInTable="visitor_license_countryColumn" msprop:Generator_UserColumnName="visitor_license_country" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="visitor_license_back_color" msprop:Generator_ColumnVarNameInTable="columnvisitor_license_back_color" msprop:Generator_ColumnPropNameInRow="visitor_license_back_color" msprop:Generator_ColumnPropNameInTable="visitor_license_back_colorColumn" msprop:Generator_UserColumnName="visitor_license_back_color" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="visitor_license_fore_color" msprop:Generator_ColumnVarNameInTable="columnvisitor_license_fore_color" msprop:Generator_ColumnPropNameInRow="visitor_license_fore_color" msprop:Generator_ColumnPropNameInTable="visitor_license_fore_colorColumn" msprop:Generator_UserColumnName="visitor_license_fore_color" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="visitor_license_type" msprop:Generator_ColumnVarNameInTable="columnvisitor_license_type" msprop:Generator_ColumnPropNameInRow="visitor_license_type" msprop:Generator_ColumnPropNameInTable="visitor_license_typeColumn" msprop:Generator_UserColumnName="visitor_license_type" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="20" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="visitor_license_accuracy" msprop:Generator_ColumnVarNameInTable="columnvisitor_license_accuracy" msprop:Generator_ColumnPropNameInRow="visitor_license_accuracy" msprop:Generator_ColumnPropNameInTable="visitor_license_accuracyColumn" msprop:Generator_UserColumnName="visitor_license_accuracy" type="xs:int" minOccurs="0" />
+              <xs:element name="visitor_access_gate" msprop:Generator_ColumnVarNameInTable="columnvisitor_access_gate" msprop:Generator_ColumnPropNameInRow="visitor_access_gate" msprop:Generator_ColumnPropNameInTable="visitor_access_gateColumn" msprop:Generator_UserColumnName="visitor_access_gate" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="50" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="visitor_access_status" msprop:Generator_ColumnVarNameInTable="columnvisitor_access_status" msprop:Generator_ColumnPropNameInRow="visitor_access_status" msprop:Generator_ColumnPropNameInTable="visitor_access_statusColumn" msprop:Generator_UserColumnName="visitor_access_status" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="10" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="visitor_license_prefix" msprop:Generator_ColumnVarNameInTable="columnvisitor_license_prefix" msprop:Generator_ColumnPropNameInRow="visitor_license_prefix" msprop:Generator_ColumnPropNameInTable="visitor_license_prefixColumn" msprop:Generator_UserColumnName="visitor_license_prefix" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:maxLength value="2" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="visitor_exit_gate" msprop:Generator_ColumnVarNameInTable="columnvisitor_exit_gate" msprop:Generator_ColumnPropNameInRow="visitor_exit_gate" msprop:Generator_ColumnPropNameInTable="visitor_exit_gateColumn" msprop:Generator_UserColumnName="visitor_exit_gate" type="xs:int" minOccurs="0" />
+              <xs:element name="visitor_exit_time" msprop:Generator_ColumnVarNameInTable="columnvisitor_exit_time" msprop:Generator_ColumnPropNameInRow="visitor_exit_time" msprop:Generator_ColumnPropNameInTable="visitor_exit_timeColumn" msprop:Generator_UserColumnName="visitor_exit_time" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="visitor_exit_date" msprop:Generator_ColumnVarNameInTable="columnvisitor_exit_date" msprop:Generator_ColumnPropNameInRow="visitor_exit_date" msprop:Generator_ColumnPropNameInTable="visitor_exit_dateColumn" msprop:Generator_UserColumnName="visitor_exit_date" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="visitor_entry_gate" msprop:Generator_ColumnVarNameInTable="columnvisitor_entry_gate" msprop:Generator_ColumnPropNameInRow="visitor_entry_gate" msprop:Generator_ColumnPropNameInTable="visitor_entry_gateColumn" msprop:Generator_UserColumnName="visitor_entry_gate" type="xs:int" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -17,8 +17,8 @@ namespace IVISS
         public Facility()
         {
             this.Guards = new HashSet<Guard>();
-            this.Visitors = new HashSet<Visitor>();
             this.Organizations = new HashSet<Organization>();
+            this.Visitors = new HashSet<Visitor>();
         }
     
         public int facility_id { get; set; }
@@ -28,7 +28,7 @@ namespace IVISS
         public string facility_country { get; set; }
     
         public virtual ICollection<Guard> Guards { get; set; }
-        public virtual ICollection<Visitor> Visitors { get; set; }
         public virtual ICollection<Organization> Organizations { get; set; }
+        public virtual ICollection<Visitor> Visitors { get; set; }
     }
 }

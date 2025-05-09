@@ -31,7 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmSystemSettings));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label56 = new System.Windows.Forms.Label();
-            this.txtComPort = new System.Windows.Forms.TextBox();
+            this.txtIPAddress = new System.Windows.Forms.TextBox();
             this.panel37 = new System.Windows.Forms.Panel();
             this.txtRelay4Port = new System.Windows.Forms.TextBox();
             this.txtRelay1CaptionArab = new System.Windows.Forms.TextBox();
@@ -101,6 +101,12 @@
             this.btnSettingsUpdate = new System.Windows.Forms.Button();
             this.label12 = new System.Windows.Forms.Label();
             this.btnClose = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtListenPort = new System.Windows.Forms.TextBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.label4 = new System.Windows.Forms.Label();
+            this.txtComPort = new System.Windows.Forms.TextBox();
+            this.panel3 = new System.Windows.Forms.Panel();
             this.groupBox1.SuspendLayout();
             this.panel27.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -111,8 +117,14 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.label56);
+            this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.txtComPort);
+            this.groupBox1.Controls.Add(this.panel3);
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.txtListenPort);
+            this.groupBox1.Controls.Add(this.panel1);
+            this.groupBox1.Controls.Add(this.label56);
+            this.groupBox1.Controls.Add(this.txtIPAddress);
             this.groupBox1.Controls.Add(this.panel37);
             this.groupBox1.Controls.Add(this.txtRelay4Port);
             this.groupBox1.Controls.Add(this.txtRelay1CaptionArab);
@@ -146,7 +158,7 @@
             this.groupBox1.Controls.Add(this.panel24);
             this.groupBox1.Location = new System.Drawing.Point(12, 45);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(786, 285);
+            this.groupBox1.Size = new System.Drawing.Size(786, 329);
             this.groupBox1.TabIndex = 91;
             this.groupBox1.TabStop = false;
             // 
@@ -155,30 +167,30 @@
             this.label56.AutoSize = true;
             this.label56.Font = new System.Drawing.Font("Open Sans", 10.18868F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label56.ForeColor = System.Drawing.Color.White;
-            this.label56.Location = new System.Drawing.Point(74, 241);
+            this.label56.Location = new System.Drawing.Point(64, 236);
             this.label56.Name = "label56";
-            this.label56.Size = new System.Drawing.Size(91, 22);
+            this.label56.Size = new System.Drawing.Size(99, 22);
             this.label56.TabIndex = 95;
-            this.label56.Text = "COM PORT";
+            this.label56.Text = "IP ADDRESS";
             // 
-            // txtComPort
+            // txtIPAddress
             // 
-            this.txtComPort.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(103)))), ((int)(((byte)(123)))));
-            this.txtComPort.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtComPort.Font = new System.Drawing.Font("Open Sans", 10.18868F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtComPort.ForeColor = System.Drawing.Color.White;
-            this.txtComPort.Location = new System.Drawing.Point(188, 242);
-            this.txtComPort.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.txtComPort.MaxLength = 2;
-            this.txtComPort.Name = "txtComPort";
-            this.txtComPort.Size = new System.Drawing.Size(205, 21);
-            this.txtComPort.TabIndex = 14;
+            this.txtIPAddress.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(103)))), ((int)(((byte)(123)))));
+            this.txtIPAddress.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtIPAddress.Font = new System.Drawing.Font("Open Sans", 10.18868F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtIPAddress.ForeColor = System.Drawing.Color.White;
+            this.txtIPAddress.Location = new System.Drawing.Point(188, 236);
+            this.txtIPAddress.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.txtIPAddress.MaxLength = 20;
+            this.txtIPAddress.Name = "txtIPAddress";
+            this.txtIPAddress.Size = new System.Drawing.Size(205, 21);
+            this.txtIPAddress.TabIndex = 14;
             // 
             // panel37
             // 
             this.panel37.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("panel37.BackgroundImage")));
             this.panel37.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.panel37.Location = new System.Drawing.Point(180, 235);
+            this.panel37.Location = new System.Drawing.Point(180, 229);
             this.panel37.Name = "panel37";
             this.panel37.Size = new System.Drawing.Size(221, 36);
             this.panel37.TabIndex = 94;
@@ -565,9 +577,9 @@
             this.groupBox2.Controls.Add(this.txtEntryLPIP);
             this.groupBox2.Controls.Add(this.panel30);
             this.groupBox2.Controls.Add(this.panel44);
-            this.groupBox2.Location = new System.Drawing.Point(12, 336);
+            this.groupBox2.Location = new System.Drawing.Point(12, 381);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(786, 311);
+            this.groupBox2.Size = new System.Drawing.Size(786, 307);
             this.groupBox2.TabIndex = 92;
             this.groupBox2.TabStop = false;
             // 
@@ -955,7 +967,7 @@
             this.btnSettingsUpdate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSettingsUpdate.Font = new System.Drawing.Font("Open Sans Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSettingsUpdate.ForeColor = System.Drawing.Color.Black;
-            this.btnSettingsUpdate.Location = new System.Drawing.Point(286, 659);
+            this.btnSettingsUpdate.Location = new System.Drawing.Point(286, 706);
             this.btnSettingsUpdate.Name = "btnSettingsUpdate";
             this.btnSettingsUpdate.Size = new System.Drawing.Size(203, 44);
             this.btnSettingsUpdate.TabIndex = 93;
@@ -992,12 +1004,81 @@
             this.btnClose.UseVisualStyleBackColor = true;
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Open Sans", 10.18868F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.White;
+            this.label2.Location = new System.Drawing.Point(57, 276);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(106, 22);
+            this.label2.TabIndex = 98;
+            this.label2.Text = "LISTEN PORT";
+            // 
+            // txtListenPort
+            // 
+            this.txtListenPort.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(103)))), ((int)(((byte)(123)))));
+            this.txtListenPort.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtListenPort.Font = new System.Drawing.Font("Open Sans", 10.18868F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtListenPort.ForeColor = System.Drawing.Color.White;
+            this.txtListenPort.Location = new System.Drawing.Point(187, 277);
+            this.txtListenPort.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.txtListenPort.MaxLength = 10;
+            this.txtListenPort.Name = "txtListenPort";
+            this.txtListenPort.Size = new System.Drawing.Size(205, 21);
+            this.txtListenPort.TabIndex = 96;
+            // 
+            // panel1
+            // 
+            this.panel1.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("panel1.BackgroundImage")));
+            this.panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.panel1.Location = new System.Drawing.Point(179, 270);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(221, 36);
+            this.panel1.TabIndex = 97;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Open Sans", 10.18868F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.ForeColor = System.Drawing.Color.White;
+            this.label4.Location = new System.Drawing.Point(444, 237);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(91, 22);
+            this.label4.TabIndex = 101;
+            this.label4.Text = "COM PORT";
+            this.label4.Visible = false;
+            // 
+            // txtComPort
+            // 
+            this.txtComPort.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(103)))), ((int)(((byte)(123)))));
+            this.txtComPort.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtComPort.Font = new System.Drawing.Font("Open Sans", 10.18868F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtComPort.ForeColor = System.Drawing.Color.White;
+            this.txtComPort.Location = new System.Drawing.Point(549, 237);
+            this.txtComPort.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.txtComPort.MaxLength = 2;
+            this.txtComPort.Name = "txtComPort";
+            this.txtComPort.Size = new System.Drawing.Size(205, 21);
+            this.txtComPort.TabIndex = 99;
+            this.txtComPort.Visible = false;
+            // 
+            // panel3
+            // 
+            this.panel3.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("panel3.BackgroundImage")));
+            this.panel3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.panel3.Location = new System.Drawing.Point(541, 230);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(221, 36);
+            this.panel3.TabIndex = 100;
+            this.panel3.Visible = false;
+            // 
             // frmSystemSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(88)))), ((int)(((byte)(103)))), ((int)(((byte)(123)))));
-            this.ClientSize = new System.Drawing.Size(810, 715);
+            this.ClientSize = new System.Drawing.Size(810, 768);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.btnSettingsUpdate);
@@ -1028,7 +1109,7 @@
 
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label56;
-        private System.Windows.Forms.TextBox txtComPort;
+        private System.Windows.Forms.TextBox txtIPAddress;
         private System.Windows.Forms.Panel panel37;
         private System.Windows.Forms.TextBox txtRelay4Port;
         private System.Windows.Forms.TextBox txtRelay1CaptionArab;
@@ -1098,5 +1179,11 @@
         private MetroFramework.Controls.MetroToggle ALPRExitLoopToggle;
         private MetroFramework.Controls.MetroToggle ALPREntryLoopToggle;
         private System.Windows.Forms.Button btnClose;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox txtComPort;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox txtListenPort;
+        private System.Windows.Forms.Panel panel1;
     }
 }

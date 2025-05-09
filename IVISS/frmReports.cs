@@ -17,10 +17,12 @@ namespace IVISS
         ReportsPresenter presenter;
 
         private bool m_LicensePlate;
+        private bool m_AdditionalALPR;
         private bool m_Date;
         private bool m_Time;
 
         public bool IsLicensePlate { get => m_LicensePlate; set => m_LicensePlate = value; }
+        public bool IsAdditionalALPR { get => m_AdditionalALPR; set => m_AdditionalALPR = value; }
         public bool IsDate { get => m_Date; set => m_Date = value; }
         public bool IsTime { get => m_Time; set => m_Time = value; }
         public string LpNumEng { get => txtLicensePlate.Text; set => txtLicensePlate.Text = value; }
@@ -30,6 +32,8 @@ namespace IVISS
         public DateTime FromDate { get => dtpFromDate.Value; set => dtpFromDate.Value = value; }
         public DateTime ToDate { get => dtpToDate.Value; set => dtpToDate.Value = value; }
 
+        public string Gate_Name { get => cboGate.Text; set => cboGate.Text = value; }
+
         public frmReports()
         {
             InitializeComponent();
@@ -37,16 +41,18 @@ namespace IVISS
             presenter = new ReportsPresenter(this);
         }
 
-       
-
-        public event EventHandler BtnReset;
+        public event EventHandler btnResetReports;
         public event EventHandler BtnReport;
 
         private void btnReport_Click(object sender, EventArgs e)
         {
-            this.UseWaitCursor = true;
-            BtnReport(sender, e);
-            this.UseWaitCursor = false;
+            try
+            {
+                this.Cursor = Cursors.WaitCursor;
+                BtnReport(sender, e);
+            }
+            catch(Exception ex) { }
+            finally { this.Cursor = Cursors.Default; }
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -56,7 +62,7 @@ namespace IVISS
 
         private void btnReportReset_Click(object sender, EventArgs e)
         {
-            BtnReset(sender, e);
+            btnResetReports(sender, e);
         }
 
         private void btnLicensePlate_Click(object sender, EventArgs e)

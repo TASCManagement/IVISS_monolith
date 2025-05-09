@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MaterialSkin.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,5 +33,10 @@ namespace IVISS.View
         string GateName { set; get; }
         string ComPort { set; get; }
         bool ALPRLoop { set; get; }
+        string IPAddress { set; get; }
+        string ListenPort { set; get; }
+        bool AIEnabled { set; get; }
+        MaterialForm systemSettingForm { get; set; }
+
     }
 }

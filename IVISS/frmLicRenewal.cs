@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using IVISS.View;
+using MaterialSkin.Controls;
 
 namespace IVISS
 {
@@ -28,13 +29,20 @@ namespace IVISS
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            
+            BtnSave(sender, e);
         }
 
         public string serialNo
         {
             set { this.txtSerialNo.Text = value; }
             get { return txtSerialNo.Text; }
+        }
+
+        public MaterialForm currentForm
+        {
+            get { return null; }
+            set => throw new NotImplementedException();
+
         }
 
         public void CloseForm()

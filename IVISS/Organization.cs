@@ -17,15 +17,15 @@ namespace IVISS
         public Organization()
         {
             this.Guards = new HashSet<Guard>();
-            this.Visitors = new HashSet<Visitor>();
             this.Facilities = new HashSet<Facility>();
+            this.Visitors = new HashSet<Visitor>();
         }
     
         public int organization_id { get; set; }
         public string organization_name { get; set; }
     
         public virtual ICollection<Guard> Guards { get; set; }
-        public virtual ICollection<Visitor> Visitors { get; set; }
         public virtual ICollection<Facility> Facilities { get; set; }
+        public virtual ICollection<Visitor> Visitors { get; set; }
     }
 }

@@ -146,27 +146,36 @@ namespace IVISS
 		/// <returns>true if the dongle is present and the authorization sequence passes.</returns>
 		public static bool IsPresent()
 		{
+            try
+            {
+                // First call DLL with 3 validate codes
+                uint retval = KFUNC(KLCHECK, ValidateCode1, ValidateCode2, ValidateCode3);
+                ushort retLow = (ushort)(retval & 0xffff);
+                ushort retHigh = (ushort)(retval >> 16);
+
+                // Next call DLL with first call result processed with canned logic
+                retval = KFUNC(
+                    RotateLeft(retLow, retHigh & 7) ^ ReadCode3 ^ retHigh,
+                    RotateLeft(retHigh, retLow & 15),
+                    (ushort)(retLow ^ retHigh),
+                    0
+                );
+                retLow = (ushort)(retval & 0xffff);
+                retHigh = (ushort)(retval >> 16);
+
+                // If all is well, the returned value will match the client id code.
+                if (retLow == ClientIDCode1 && retHigh == ClientIDCode2)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                return false;
+                var r = ex;
+            }
             //KEYBD(LaunchAntiDebugger);
 
-			// First call DLL with 3 validate codes
-			uint retval=KFUNC(KLCHECK,ValidateCode1,ValidateCode2,ValidateCode3);
-			ushort retLow=(ushort)(retval & 0xffff);
-			ushort retHigh=(ushort)(retval >> 16);
-
-			// Next call DLL with first call result processed with canned logic
-			retval=KFUNC(
-				RotateLeft(retLow,retHigh & 7) ^ ReadCode3 ^ retHigh,
-				RotateLeft(retHigh,retLow & 15),
-				(ushort)(retLow ^ retHigh),
-				0
-			);
-			retLow=(ushort)(retval & 0xffff);
-			retHigh=(ushort)(retval >> 16);
-
-			// If all is well, the returned value will match the client id code.
-			if (retLow==ClientIDCode1 && retHigh==ClientIDCode2)
-				return true;
-			return false;
+			
 		}
 		public static void Reset()
 		{

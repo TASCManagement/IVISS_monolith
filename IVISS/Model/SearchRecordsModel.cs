@@ -13,7 +13,7 @@ namespace IVISS.Model
         public string LpNumArabic { set; get; }
         public string LpNumEnglish { set; get; }
         public string RecordingPath { set; get; }
-      
+
         public bool IsLicensePlate { set; get; }
         public bool IsDate { set; get; }
         public bool IsTime { set; get; }
@@ -23,15 +23,13 @@ namespace IVISS.Model
 
         public DateTime ToTime { set; get; }
         public DateTime FromTime { set; get; }
-        
+
+        public bool isAdditionalALPR { set; get; }
+
 
         public DataTable ReturnGridSource()
         {
-            //string lpEng = lpNumEnglish;
-            //string lpArab = lpNumArabic;
-            //bool isLicensePlate;
-            //bool isDate;
-            //bool isTime;
+           
 
             using (var db = new IVISSEntities())
             {
@@ -48,6 +46,8 @@ namespace IVISS.Model
                                p.visitor_access_gate,
                                p.visitor_authorization,
                                p.visitor_access_status,
+                               p.is_default,
+                               p.is_primary,
                                p.gate_no
                            };
 
@@ -74,6 +74,15 @@ namespace IVISS.Model
                     prod = prod.Where(p => p.visitor_entry_time.Minute >= FromTime.Minute && p.visitor_entry_time.Minute <= ToTime.Minute);
                 }
 
+                if (isAdditionalALPR)
+                {
+
+                }
+                else
+                {
+                    prod = prod.Where(p => p.is_primary != 0);
+                }
+
                 // Execute the query
                 var prodResult = prod.ToList();
 
@@ -89,6 +98,8 @@ namespace IVISS.Model
                 dt.Columns.Add("Classification", typeof(String));
                 dt.Columns.Add("GateType", typeof(String));
                 dt.Columns.Add("GateName", typeof(String));
+                dt.Columns.Add("IsDefault", typeof(String));
+             
 
                 DataRow dr;
 
@@ -105,12 +116,61 @@ namespace IVISS.Model
                     dr["Status"] = p.visitor_access_status ?? string.Empty;
                     dr["Classification"] = p.visitor_authorization ?? "VISITOR";
                     dr["GateType"] = p.visitor_access_gate;
-                    dr["GateName"] = "Gate" + p.gate_no;
+                    dr["GateName"] = p.gate_no;
+                    dr["IsDefault"] = p.is_default.ToString();
+                   
 
                     dt.Rows.Add(dr);
                 }
 
                 return dt;
+            }
+        }
+
+
+        public DataTable ResetGridSource()
+        {
+
+
+
+
+
+            DataTable dt = new DataTable();
+            dt.Columns.Add("VisitorID", typeof(String));
+            dt.Columns.Add("License", typeof(String));
+            dt.Columns.Add("Arabic", typeof(String));
+            dt.Columns.Add("Path", typeof(String));
+            dt.Columns.Add("DateTime", typeof(DateTime));
+            dt.Columns.Add("Accuracy", typeof(String));
+            dt.Columns.Add("Status", typeof(String));
+            dt.Columns.Add("Classification", typeof(String));
+            dt.Columns.Add("GateType", typeof(String));
+            dt.Columns.Add("GateName", typeof(String));
+            dt.Columns.Add("IsDefault", typeof(String));
+           
+
+
+
+
+            return dt;
+
+        }
+
+        public void SetDefault(bool isDefault)
+        {
+            using (var db = new IVISSEntities())
+            {
+                var query = (from d in db.Details
+                             where d.visitor_iviss_recording == RecordingPath
+                             select d).FirstOrDefault();
+
+
+                if (query != null)
+                {
+                    query.is_default = (byte)((isDefault) ? 1 : 0);
+
+                    db.SaveChanges();
+                }
             }
         }
 

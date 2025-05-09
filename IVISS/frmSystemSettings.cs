@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using IVISS.View;
 using IVISS.Presenter;
+using MaterialSkin.Controls;
 
 namespace IVISS
 {
@@ -20,7 +21,9 @@ namespace IVISS
         {
             InitializeComponent();
 
+            
             presenter = new SystemSettingsPresenter(this);
+            this.Cursor = Cursors.Default;
         }
 
         public string Relay1CaptionEnglish { get => this.txtRelay1Caption.Text; set => this.txtRelay1Caption.Text = value; }
@@ -41,8 +44,13 @@ namespace IVISS
         public string DriverCamPassword { get => this.txtDriverCamPassword.Text; set => this.txtDriverCamPassword.Text = value; }
         public string SceneCamPassword { get => this.txtSceneCamPassword.Text; set => this.txtSceneCamPassword.Text = value; }
         public string GateName { get => this.txtGateName.Text; set => this.txtGateName.Text = value; }
-        public string ComPort { get => this.txtComPort.Text; set => this.txtComPort.Text = value; }
+        public string ComPort { get => this.txtIPAddress.Text; set => this.txtIPAddress.Text = value; }
         public bool ALPRLoop { get => this.ALPREntryLoopToggle.Checked; set => this.ALPREntryLoopToggle.Checked = value; }
+
+        public bool AIEnabled { get => this.ALPREntryLoopToggle.Checked; set => this.ALPREntryLoopToggle.Checked = value; }
+        public string IPAddress { get => this.txtIPAddress.Text; set => this.txtIPAddress.Text = value; }
+        public string ListenPort { get => this.txtListenPort.Text; set => this.txtListenPort.Text = value; }
+        public MaterialForm systemSettingForm { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public event EventHandler BtnUpdate;
 

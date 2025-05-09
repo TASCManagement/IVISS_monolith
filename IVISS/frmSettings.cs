@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using IVISS.View;
 using IVISS.Presenter;
+using IVISS.Utility;
 
 namespace IVISS
 {
@@ -27,6 +28,12 @@ namespace IVISS
             InitializeComponent();
 
             presenter = new SettingsPresenter(this);
+
+            if (Global.USER_TYPE == "GUARD")
+            {
+                btnUserManagement.Enabled = false;
+                btnVisitorDataEntry.Enabled = false;
+            }
         }
 
         private void btnClose_Click(object sender, EventArgs e)
@@ -36,7 +43,9 @@ namespace IVISS
 
         private void btnSystemSettings_Click(object sender, EventArgs e)
         {
+            this.Cursor = Cursors.WaitCursor;
             BtnSystemSettings(sender, e);
+            this.Cursor = Cursors.Default;
         }
 
         private void btnUserManagement_Click(object sender, EventArgs e)

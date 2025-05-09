@@ -44,6 +44,11 @@ namespace IVISS
         public string ExitDriverCamIP { get; set; }
         public string ExitLicenseCamIP { get; set; }
         public Nullable<int> DriverRecTimeout { get; set; }
-        public Nullable<byte> gate_no { get; set; }
+        public string gate_no { get; set; }
+        public string IPAddress { get; set; }
+        public string ListenPort { get; set; }
+        public string LicenseNo { get; set; }
+        public Nullable<bool> AIEnabled { get; set; }
+        public Nullable<bool> LaserTriggerEnabled { get; set; }
     }
 }
